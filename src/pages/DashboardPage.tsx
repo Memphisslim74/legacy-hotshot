@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthContext'
 import { Icon } from '../components/Icon'
 import { MetricCard } from '../components/MetricCard'
 import { StatusPill } from '../components/StatusPill'
@@ -6,12 +7,13 @@ import { activeLoads, attentionItems, dashboardMetrics, weeklySchedule } from '.
 
 export function DashboardPage() {
   const navigate = useNavigate()
+  const { user } = useAuth()
 
   return (
     <div className="dashboard-page">
       <section className="welcome-row">
         <div>
-          <h2>Good evening, Jared.</h2>
+          <h2>Good evening, {user?.fullName || 'Jared Guinn'}.</h2>
           <p>Here is what needs your attention across Legacy Hotshot.</p>
         </div>
         <div className="welcome-row__actions">
