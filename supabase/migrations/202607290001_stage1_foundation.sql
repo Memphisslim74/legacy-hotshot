@@ -105,12 +105,7 @@ begin
   values (
     new.id,
     coalesce(new.raw_user_meta_data ->> 'full_name', split_part(new.email, '@', 1)),
-    case
-      when new.raw_user_meta_data ->> 'role' = 'owner' then 'owner'::public.user_role
-      when new.raw_user_meta_data ->> 'role' = 'dispatcher' then 'dispatcher'::public.user_role
-      when new.raw_user_meta_data ->> 'role' = 'finance' then 'finance'::public.user_role
-      else 'driver'::public.user_role
-    end
+    'driver'::public.user_role
   );
   return new;
 end;
