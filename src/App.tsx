@@ -17,7 +17,7 @@ import { CompanySettingsPage } from './pages/CompanySettingsPage'
 import { DriverPortalPage } from './pages/DriverPortalPage'
 import { DriverLoadPage } from './pages/DriverLoadPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
-import { UserManagementPage } from './pages/UserManagementPage'
+import { AccountAdministrationPage } from './pages/AccountAdministrationPage'
 
 function LoadingScreen() {
   return <div className="loading-screen"><div className="loading-mark">L</div><span>Loading Command Center...</span></div>
@@ -72,7 +72,7 @@ export default function App() {
           <Route path="reports" element={<PlaceholderPage />} />
           <Route path="settings" element={<CompanySettingsPage />} />
           <Route element={<OwnerOnly />}>
-            <Route path="users" element={<UserManagementPage />} />
+            <Route path="users" element={<AccountAdministrationPage />} />
           </Route>
         </Route>
       </Route>
