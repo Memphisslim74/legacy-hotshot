@@ -1,0 +1,249 @@
+:root {
+  --ink: #121417;
+  --ink-soft: #292d32;
+  --muted: #686d73;
+  --line: #d8dade;
+  --panel: #ffffff;
+  --canvas: #f1f2f3;
+  --accent: #bd1f31;
+  --accent-dark: #8a1421;
+  --accent-pale: #f8e7ea;
+  --danger: #a71929;
+  --danger-pale: #fae8eb;
+  --blue: #3e596f;
+  --blue-pale: #e8edf1;
+  --shadow: 0 10px 30px rgba(16, 18, 21, 0.08);
+}
+
+body {
+  background:
+    linear-gradient(135deg, rgba(189, 31, 49, 0.025), transparent 34%),
+    var(--canvas);
+}
+
+.primary-button {
+  background: linear-gradient(180deg, #c82639, var(--accent-dark));
+  box-shadow: 0 6px 16px rgba(138, 20, 33, 0.23);
+}
+
+.primary-button:hover {
+  background: linear-gradient(180deg, #d02b3f, #75101b);
+}
+
+.text-button,
+.attention-item > button {
+  color: var(--accent-dark);
+}
+
+.text-button:hover {
+  color: #650d17;
+}
+
+.brand-mark {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+}
+
+.brand-mark__logo {
+  display: block;
+  width: 158px;
+  height: auto;
+  max-height: 78px;
+  object-fit: contain;
+  object-position: left center;
+  filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.24));
+}
+
+.brand-mark__product {
+  margin-left: 3px;
+  color: #555b61;
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: 0.61rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.brand-mark--inverse .brand-mark__product {
+  color: #c7c9cc;
+}
+
+.brand-mark--compact .brand-mark__logo {
+  width: 58px;
+  max-height: 52px;
+}
+
+.sidebar {
+  background:
+    radial-gradient(circle at 30% 0%, rgba(189, 31, 49, 0.16), transparent 24%),
+    linear-gradient(180deg, #17191d, #0d0f11 88%);
+  border-right-color: #30343a;
+}
+
+.sidebar__brand {
+  height: 116px;
+  padding: 9px 20px;
+  border-bottom-color: #30343a;
+}
+
+.sidebar .brand-mark__logo {
+  width: 158px;
+  max-height: 82px;
+}
+
+.sidebar__section + .sidebar__section,
+.sidebar__profile {
+  border-color: #30343a;
+}
+
+.sidebar-link small {
+  color: #ff9aa6;
+  background: rgba(189, 31, 49, 0.18);
+}
+
+.sidebar-link--active {
+  background: linear-gradient(90deg, rgba(189, 31, 49, 0.24), rgba(37, 40, 45, 0.92));
+  box-shadow: inset 3px 0 0 #d72c40;
+}
+
+.sidebar__profile .avatar {
+  color: #ffffff;
+  background: linear-gradient(180deg, #cc2a3d, #86131f);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.login-hero {
+  background:
+    linear-gradient(110deg, rgba(7, 8, 10, 0.98), rgba(17, 19, 23, 0.9)),
+    radial-gradient(circle at 72% 37%, rgba(189, 31, 49, 0.27), transparent 31%),
+    #101216;
+}
+
+.login-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(145deg, transparent 58%, rgba(189, 31, 49, 0.12));
+}
+
+.login-hero .brand-mark {
+  position: relative;
+  z-index: 2;
+}
+
+.login-hero .brand-mark__logo {
+  width: clamp(245px, 27vw, 340px);
+  max-height: none;
+}
+
+.login-hero .brand-mark__product {
+  margin: 4px 0 0 10px;
+  color: #f0f1f2;
+  font-size: 0.72rem;
+}
+
+.login-hero__message .eyebrow,
+.login-hero__trust svg {
+  color: #ef5062;
+}
+
+.login-panel {
+  background:
+    linear-gradient(180deg, #ffffff, #f7f7f8);
+}
+
+.login-form input:focus,
+.form-grid input:focus,
+.form-grid select:focus,
+.form-grid textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(189, 31, 49, 0.14);
+}
+
+.topbar {
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.metric-card,
+.panel,
+.placeholder-panel,
+.setup-form {
+  border-color: #d9dadd;
+}
+
+.metric-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(180deg, var(--accent), #5d6268);
+  opacity: 0.72;
+}
+
+.progress-track span {
+  background: linear-gradient(90deg, #8b1421, #d22a3e);
+}
+
+.route-stop__marker--destination,
+.setup-progress > div.active > span,
+.loading-mark {
+  color: #ffffff;
+  background: linear-gradient(180deg, #c9283b, #84131f);
+  border-color: #c9283b;
+}
+
+.quick-actions button:hover {
+  border-color: rgba(189, 31, 49, 0.36);
+  background: #fff8f9;
+}
+
+.quick-actions button > svg,
+.route-stats svg,
+.placeholder-panel__icon {
+  color: var(--accent-dark);
+}
+
+.placeholder-panel__icon {
+  background: var(--accent-pale);
+}
+
+.setup-page__aside {
+  background:
+    radial-gradient(circle at 20% 0%, rgba(189, 31, 49, 0.2), transparent 25%),
+    linear-gradient(180deg, #17191d, #0d0f11);
+}
+
+.brand-preview {
+  background: linear-gradient(135deg, #f8f8f9, #ffffff);
+}
+
+.mobile-nav a.active {
+  color: var(--accent-dark);
+}
+
+@media (max-width: 760px) {
+  .login-panel__mobile-brand .brand-mark__logo {
+    width: 210px;
+    max-height: none;
+  }
+
+  .login-panel__mobile-brand .brand-mark__product {
+    margin-left: 6px;
+  }
+
+  .sidebar__brand {
+    height: 110px;
+  }
+}
