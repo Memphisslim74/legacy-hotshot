@@ -8,6 +8,8 @@ import type { DocumentRecord, LoadRecord } from '../types'
 const demoDocuments: DocumentRecord[] = [
   { id: 'doc-1', type: 'bill_of_lading', file_name: 'LH-1028-bill-of-lading.pdf', storage_path: 'demo', customer_visible: false, created_at: new Date().toISOString(), loads: { load_number: 'LH-1028' }, customers: { company_name: 'Titan Industrial' } },
   { id: 'doc-2', type: 'proof_of_delivery', file_name: 'LH-1026-signed-pod.pdf', storage_path: 'demo', customer_visible: true, created_at: new Date(Date.now()-86400000).toISOString(), loads: { load_number: 'LH-1026' }, customers: { company_name: 'Frontier Site Services' } },
+  { id: 'doc-3', type: 'rate_confirmation', file_name: 'LH-1029-rate-confirmation.pdf', storage_path: 'demo', customer_visible: false, created_at: new Date(Date.now()-172800000).toISOString(), loads: { load_number: 'LH-1029' }, customers: { company_name: 'High Plains Fabrication' } },
+  { id: 'doc-4', type: 'receipt', file_name: 'LH-1028-fuel-receipt.jpg', storage_path: 'demo', customer_visible: false, created_at: new Date(Date.now()-21600000).toISOString(), loads: { load_number: 'LH-1028' }, customers: { company_name: 'Titan Industrial' } },
 ]
 
 const labels: Record<string, string> = {
@@ -26,6 +28,7 @@ export function DocumentsPage() {
   const [file, setFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [showingSampleData, setShowingSampleData] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
@@ -33,10 +36,12 @@ export function DocumentsPage() {
         if (!user?.companyId || user.demo) {
           setDocuments(demoDocuments)
           setLoads([])
+          setShowingSampleData(true)
         } else {
           const [documentRows, loadRows] = await Promise.all([listDocuments(user.companyId), listLoads(user.companyId)])
-          setDocuments(documentRows)
+          setDocuments(documentRows.length ? documentRows : demoDocuments)
           setLoads(loadRows)
+          setShowingSampleData(documentRows.length === 0)
         }
       } catch (caught) {
         setError(caught instanceof Error ? caught.message : 'Unable to load documents.')
@@ -59,7 +64,8 @@ export function DocumentsPage() {
       const created = !user.companyId || user.demo
         ? { id: `demo-doc-${Date.now()}`, type, file_name: file.name, storage_path: 'demo', customer_visible: customerVisible, created_at: new Date().toISOString(), loads: load ? { load_number: load.load_number } : null, customers: load?.customers || null } as DocumentRecord
         : await uploadLegacyDocument({ companyId: user.companyId, userId: user.id, loadId: selectedLoad || undefined, customerId: load?.customer_id || undefined, type, customerVisible, file })
-      setDocuments((current) => [created, ...current])
+      setDocuments((current) => [created, ...current.filter((document) => !document.id.startsWith('doc-'))])
+      setShowingSampleData(false)
       setFile(null)
       setSelectedLoad('')
       setShowUpload(false)
@@ -83,6 +89,7 @@ export function DocumentsPage() {
     <div className="operations-page">
       <div className="page-command-row"><div><span className="eyebrow">PRIVATE RECORDS</span><h2>Documents</h2><p>Store load paperwork privately and control which files customers can see.</p></div><button className="primary-button" onClick={() => setShowUpload(true)}><Icon name="plus" size={17} /> Upload Document</button></div>
       {error && <div className="form-error operations-alert">{error}</div>}
+      {showingSampleData && <div className="sample-data-banner"><Icon name="alert" size={16} /><span><strong>Sample Data — Preview Only</strong> No real documents exist yet. These files are visual examples and cannot be opened.</span></div>}
       <section className="panel operations-toolbar"><label className="operations-search"><Icon name="search" size={18} /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search file name, load, customer, or document type" /></label><div className="operations-summary"><strong>{filtered.length}</strong><span>files</span></div></section>
       <section className="panel document-list">
         <div className="document-list__header"><span>File</span><span>Type</span><span>Related record</span><span>Visibility</span><span>Uploaded</span><span /></div>
