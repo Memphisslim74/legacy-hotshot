@@ -20,6 +20,7 @@ import './account-administration.css'
 import './driver-route-command.css'
 import './operational-records.css'
 import './field-operations.css'
+import './layout-hotfix.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
