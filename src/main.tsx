@@ -18,6 +18,7 @@ import './sample-preview.css'
 import './relationship-directory-v2.css'
 import './account-administration.css'
 import './driver-route-command.css'
+import './operational-records.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
