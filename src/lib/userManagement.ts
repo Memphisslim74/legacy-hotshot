@@ -59,6 +59,13 @@ export async function updateManagedUser(values: {
   return result.user
 }
 
+export async function setManagedUserPassword(userId: string, password: string) {
+  return apiRequest<{ message: string }>('/api/admin/users/set-password', {
+    method: 'POST',
+    body: JSON.stringify({ userId, password }),
+  })
+}
+
 export async function sendManagedUserPasswordReset(userId: string) {
   return apiRequest<{ message: string }>('/api/admin/users/reset-password', {
     method: 'POST',
