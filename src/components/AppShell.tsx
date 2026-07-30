@@ -56,6 +56,7 @@ export function AppShell({ children }: PropsWithChildren) {
     : pageTitles[location.pathname] ?? { eyebrow: 'Legacy Hotshot', title: 'Command Center' }
 
   const handleSignOut = async () => { await signOut(); navigate('/login') }
+  const accountName = user?.fullName || 'User'
 
   return (
     <div className="app-shell">
@@ -65,14 +66,14 @@ export function AppShell({ children }: PropsWithChildren) {
           <div className="sidebar__section"><p className="sidebar__label">OPERATIONS</p>{mainNav.map((item) => <SidebarLink key={item.href} item={item} closeMenu={() => setMenuOpen(false)} />)}</div>
           <div className="sidebar__section"><p className="sidebar__label">BUSINESS</p>{businessNav.map((item) => <SidebarLink key={item.href} item={item} closeMenu={() => setMenuOpen(false)} />)}</div>
         </nav>
-        <div className="sidebar__profile"><div className="avatar">{user?.fullName.charAt(0).toUpperCase() || 'J'}</div><div><strong>{user?.fullName || 'Jared Guinn'}</strong><span>{user?.role === 'owner' ? 'Owner & Administrator' : user?.role}</span></div><button className="icon-button" onClick={handleSignOut} aria-label="Sign out"><Icon name="logout" size={18} /></button></div>
+        <div className="sidebar__profile"><div className="avatar">{accountName.charAt(0).toUpperCase()}</div><div><strong>{accountName}</strong><span>{user?.role === 'owner' ? 'Owner & Administrator' : user?.role}</span></div><button className="icon-button" onClick={handleSignOut} aria-label="Sign out"><Icon name="logout" size={18} /></button></div>
       </aside>
 
       {menuOpen && <button className="sidebar-scrim" onClick={() => setMenuOpen(false)} aria-label="Close menu" />}
 
       <main className="main-area">
         <header className="topbar"><div className="topbar__title"><button className="icon-button mobile-menu" onClick={() => setMenuOpen(true)} aria-label="Open navigation"><Icon name="menu" /></button><div><span>{page.eyebrow}</span><h1>{page.title}</h1></div></div><div className="topbar__actions"><label className="global-search"><Icon name="search" size={18} /><input placeholder="Search loads, customers, quotes..." aria-label="Global search" /><kbd>⌘ K</kbd></label><button className="icon-button notification-button" aria-label="Notifications"><Icon name="bell" /><span>4</span></button><button className="primary-button topbar__new-load" onClick={() => navigate('/loads/new')}><Icon name="plus" size={17} /> New Load</button></div></header>
-        {user?.demo && <div className="demo-banner"><strong>Stage 2 Preview</strong><span>You are viewing realistic sample operations. Connect Supabase and run migrations 004–005 to activate live data.</span></div>}
+        {user?.demo && <div className="demo-banner"><strong>Demo Preview</strong><span>You are viewing realistic sample operations. Connect Supabase and run all migrations to activate live data.</span></div>}
         <div className="page-content">{children}</div>
       </main>
 
