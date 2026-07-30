@@ -10,6 +10,7 @@ import './settings.css'
 import './stage3.css'
 import './user-security.css'
 import './professional.css'
+import './relationships.css'
 import './tracker.css'
 
 createRoot(document.getElementById('root')!).render(
