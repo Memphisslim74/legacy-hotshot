@@ -13,6 +13,7 @@ import './professional.css'
 import './relationships.css'
 import './tracker.css'
 import './legacy-operations.css'
+import './admin-workspace.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
