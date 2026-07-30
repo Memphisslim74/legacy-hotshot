@@ -26,6 +26,33 @@ function appleDirections(destination: string, origin?: string) {
   return `https://maps.apple.com/?${params.toString()}`
 }
 
+function sampleLoadForId(id?: string): LoadRecord {
+  if (id === 'load-2') {
+    return {
+      ...demoDriverLoad,
+      id: 'load-2',
+      load_number: 'LH-1029',
+      status: 'booked',
+      pickup_company: 'High Plains Fabrication',
+      pickup_address: '1500 Commerce Drive',
+      pickup_city: 'Abilene',
+      pickup_state: 'TX',
+      delivery_company: 'Frontier Site Services',
+      delivery_address: '880 County Road 12',
+      delivery_city: 'Odessa',
+      delivery_state: 'TX',
+      freight_description: 'Skid-mounted pump equipment',
+      customer_rate: 2100,
+      estimated_fuel: 310,
+      loaded_miles: 265,
+      deadhead_miles: 44,
+      tracking_token: 'demo-track-2',
+      customers: { company_name: 'High Plains Fabrication' },
+    }
+  }
+  return { ...demoDriverLoad, id: id || 'load-1', load_number: 'LH-1028' }
+}
+
 export function LoadDetailPage() {
   const { id } = useParams()
   const { user } = useAuth()
@@ -34,15 +61,26 @@ export function LoadDetailPage() {
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
   const [trackerCopied, setTrackerCopied] = useState(false)
+  const [showingSampleData, setShowingSampleData] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
       try {
         if (!user?.companyId || user.demo) {
-          setLoad({ ...demoDriverLoad, id: id || demoDriverLoad.id })
+          setLoad(sampleLoadForId(id))
+          setShowingSampleData(true)
         } else {
           const rows = await listLoads(user.companyId)
-          setLoad(rows.find((item) => item.id === id) || null)
+          const selected = rows.find((item) => item.id === id) || null
+          if (selected) {
+            setLoad(selected)
+            setShowingSampleData(false)
+          } else if (id?.startsWith('load-')) {
+            setLoad(sampleLoadForId(id))
+            setShowingSampleData(true)
+          } else {
+            setLoad(null)
+          }
         }
       } catch (caught) {
         setError(caught instanceof Error ? caught.message : 'Unable to load this shipment.')
@@ -55,6 +93,7 @@ export function LoadDetailPage() {
     if (!load || !user) return
     const previous = load.status
     setLoad({ ...load, status })
+    if (showingSampleData) return
     setSaving(true)
     try {
       if (user.companyId && !user.demo) await updateLoadStatus(user.companyId, user.id, load.id, status)
@@ -104,6 +143,7 @@ export function LoadDetailPage() {
         </div>
       </div>
       {error && <div className="form-error operations-alert">{error}</div>}
+      {showingSampleData && <div className="sample-data-banner"><Icon name="alert" size={16} /><span><strong>Sample Data — Preview Only</strong> This load is not stored in Supabase. Status changes remain local to this preview.</span></div>}
 
       <section className="panel load-status-bar">
         <div><span>Current status</span><select value={load.status} disabled={saving} onChange={(e) => changeStatus(e.target.value as LoadStatus)}>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
