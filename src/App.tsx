@@ -15,6 +15,8 @@ import { PublicLoadRequestPage } from './pages/PublicLoadRequestPage'
 import { CompanySettingsPage } from './pages/CompanySettingsPage'
 import { DriverPortalPage } from './pages/DriverPortalPage'
 import { DriverLoadPage } from './pages/DriverLoadPage'
+import { ResetPasswordPage } from './pages/ResetPasswordPage'
+import { UserManagementPage } from './pages/UserManagementPage'
 
 function LoadingScreen() {
   return <div className="loading-screen"><div className="loading-mark">L</div><span>Loading Command Center...</span></div>
@@ -36,10 +38,17 @@ function OfficeOnly() {
   return <Outlet />
 }
 
+function OwnerOnly() {
+  const { user } = useAuth()
+  if (user?.role !== 'owner') return <Navigate to="/" replace />
+  return <Outlet />
+}
+
 export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/setup" element={<SetupPage />} />
       <Route path="/request-load" element={<PublicLoadRequestPage />} />
       <Route element={<ProtectedLayout />}>
@@ -60,6 +69,9 @@ export default function App() {
           <Route path="invoices" element={<PlaceholderPage />} />
           <Route path="reports" element={<PlaceholderPage />} />
           <Route path="settings" element={<CompanySettingsPage />} />
+          <Route element={<OwnerOnly />}>
+            <Route path="users" element={<UserManagementPage />} />
+          </Route>
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
