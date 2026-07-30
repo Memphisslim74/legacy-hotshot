@@ -9,6 +9,7 @@ import './stage2.css'
 import './settings.css'
 import './stage3.css'
 import './user-security.css'
+import './professional.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
