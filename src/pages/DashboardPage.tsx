@@ -1,7 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { Icon } from '../components/Icon'
-import { MetricCard } from '../components/MetricCard'
 import { StatusPill } from '../components/StatusPill'
 import { activeLoads, attentionItems, dashboardMetrics, weeklySchedule } from '../data/demo'
 
@@ -10,141 +9,135 @@ export function DashboardPage() {
   const { user } = useAuth()
 
   return (
-    <div className="dashboard-page">
-      <section className="welcome-row">
+    <div className="dispatch-overview">
+      <section className="dispatch-intro">
         <div>
+          <span className="dispatch-intro__label">SHIFT SUMMARY</span>
           <h2>Good evening, {user?.fullName || 'Jared Guinn'}.</h2>
-          <p>Here is what needs your attention across Legacy Hotshot.</p>
+          <p>Three loads are moving, one pickup window is approaching, and four items need review.</p>
         </div>
-        <div className="welcome-row__actions">
-          <button className="secondary-button" onClick={() => navigate('/communications')}><Icon name="messages" size={17} /> Send Update</button>
-          <button className="primary-button" onClick={() => navigate('/loads/new')}><Icon name="plus" size={17} /> Create Load</button>
+        <div className="dispatch-intro__actions">
+          <button className="dispatch-action dispatch-action--secondary" onClick={() => navigate('/communications')}><Icon name="messages" size={16} /> Send Update</button>
+          <button className="dispatch-action dispatch-action--primary" onClick={() => navigate('/loads/new')}><Icon name="plus" size={16} /> Create Load</button>
         </div>
       </section>
 
-      <section className="metrics-grid" aria-label="Business metrics">
-        {dashboardMetrics.map((metric) => <MetricCard key={metric.label} {...metric} />)}
+      <section className="ops-kpi-strip" aria-label="Current operating metrics">
+        {dashboardMetrics.map((metric, index) => (
+          <button key={metric.label} className={`ops-kpi ops-kpi--${metric.trend}`} onClick={() => navigate(index < 2 ? '/loads' : '/invoices')}>
+            <span>{metric.label}</span>
+            <strong>{metric.value}</strong>
+            <small>{metric.note}</small>
+          </button>
+        ))}
       </section>
 
-      <section className="dashboard-grid dashboard-grid--top">
-        <article className="panel attention-panel">
-          <div className="panel__header">
+      <section className="dispatch-layout">
+        <article className="dispatch-board">
+          <header className="dispatch-section-head">
             <div>
-              <span className="panel__eyebrow">EXCEPTIONS FIRST</span>
-              <h3>Attention Needed</h3>
+              <span>LIVE LOAD BOARD</span>
+              <h3>Active Shipments</h3>
             </div>
-            <span className="count-badge">{attentionItems.length}</span>
+            <div className="dispatch-board__filters" aria-label="Load filters">
+              <button className="active">Moving</button>
+              <button>Today</button>
+              <button onClick={() => navigate('/loads')}>All Loads</button>
+            </div>
+          </header>
+
+          <div className="dispatch-table-wrap">
+            <table className="dispatch-table">
+              <thead>
+                <tr><th>Load</th><th>Route</th><th>Schedule</th><th>Driver</th><th>Status</th><th>Movement</th><th /></tr>
+              </thead>
+              <tbody>
+                {activeLoads.map((load) => (
+                  <tr key={load.id}>
+                    <td className="dispatch-load-id"><strong>{load.loadNumber}</strong><span>{load.customer}</span></td>
+                    <td className="dispatch-route-cell"><strong>{load.pickup}</strong><i /><span>{load.delivery}</span></td>
+                    <td><strong>{load.appointment}</strong><span>{load.eta}</span></td>
+                    <td><strong>{load.driver}</strong><span>Assigned</span></td>
+                    <td><StatusPill status={load.status} /></td>
+                    <td>
+                      <div className="dispatch-progress"><span style={{ width: `${load.progress}%` }} /></div>
+                      <small>{load.progress}% complete</small>
+                    </td>
+                    <td><button className="dispatch-row-action" aria-label={`Open ${load.loadNumber}`} onClick={() => navigate('/loads')}><Icon name="arrow" size={16} /></button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="attention-list">
-            {attentionItems.map((item) => (
-              <div className="attention-item" key={item.id}>
-                <div className={`attention-item__icon attention-item__icon--${item.severity}`}>
-                  <Icon name={item.severity === 'info' ? 'check' : 'alert'} size={18} />
-                </div>
-                <div className="attention-item__copy">
-                  <strong>{item.title}</strong>
-                  <span>{item.detail}</span>
-                </div>
-                <button onClick={() => navigate(item.href)}>{item.action}<Icon name="arrow" size={15} /></button>
-              </div>
+
+          <div className="dispatch-mobile-loads">
+            {activeLoads.map((load) => (
+              <button key={load.id} onClick={() => navigate('/loads')}>
+                <div><strong>{load.loadNumber}</strong><StatusPill status={load.status} /></div>
+                <span>{load.customer}</span>
+                <p>{load.pickup} <Icon name="arrow" size={13} /> {load.delivery}</p>
+                <small>{load.appointment} · {load.driver}</small>
+                <div className="dispatch-progress"><span style={{ width: `${load.progress}%` }} /></div>
+              </button>
             ))}
           </div>
         </article>
 
-        <article className="panel today-panel">
-          <div className="panel__header">
-            <div>
-              <span className="panel__eyebrow">AT A GLANCE</span>
-              <h3>Today’s Route</h3>
-            </div>
-            <Icon name="route" />
-          </div>
-          <div className="route-summary">
-            <div className="route-stop">
-              <span className="route-stop__marker">A</span>
-              <div><small>PICKUP</small><strong>Fort Worth, TX</strong><span>8:00 PM · Titan Industrial</span></div>
-            </div>
-            <div className="route-line"><span /></div>
-            <div className="route-stop">
-              <span className="route-stop__marker route-stop__marker--destination">B</span>
-              <div><small>DELIVERY</small><strong>Midland, TX</strong><span>Tomorrow · 8:00 AM</span></div>
-            </div>
-          </div>
-          <div className="route-stats">
-            <div><Icon name="truck" size={18} /><span><strong>318 mi</strong> total route</span></div>
-            <div><Icon name="clock" size={18} /><span><strong>4 hr 42 min</strong> drive estimate</span></div>
-          </div>
-          <button className="secondary-button secondary-button--full" onClick={() => navigate('/loads')}>Open LH-1028 <Icon name="arrow" size={16} /></button>
-        </article>
-      </section>
-
-      <section className="panel loads-panel">
-        <div className="panel__header panel__header--bordered">
-          <div>
-            <span className="panel__eyebrow">LIVE OPERATIONS</span>
-            <h3>Active Loads</h3>
-          </div>
-          <button className="text-button" onClick={() => navigate('/loads')}>View all loads <Icon name="arrow" size={15} /></button>
-        </div>
-        <div className="loads-table-wrap">
-          <table className="loads-table">
-            <thead>
-              <tr><th>Load</th><th>Route</th><th>Driver</th><th>Appointment</th><th>Status</th><th>Progress</th><th /></tr>
-            </thead>
-            <tbody>
-              {activeLoads.map((load) => (
-                <tr key={load.id}>
-                  <td><strong>{load.loadNumber}</strong><span>{load.customer}</span></td>
-                  <td><strong>{load.pickup}</strong><span>to {load.delivery}</span></td>
-                  <td>{load.driver}</td>
-                  <td><strong>{load.appointment}</strong><span>{load.eta}</span></td>
-                  <td><StatusPill status={load.status} /></td>
-                  <td>
-                    <div className="progress-cell"><div className="progress-track"><span style={{ width: `${load.progress}%` }} /></div><small>{load.progress}%</small></div>
-                  </td>
-                  <td><button className="icon-button" aria-label={`Open ${load.loadNumber}`} onClick={() => navigate('/loads')}><Icon name="arrow" size={17} /></button></td>
-                </tr>
+        <aside className="dispatch-sidecar">
+          <section className="exception-queue">
+            <header className="dispatch-section-head dispatch-section-head--compact">
+              <div><span>EXCEPTION QUEUE</span><h3>Needs Attention</h3></div>
+              <strong className="exception-count">{attentionItems.length}</strong>
+            </header>
+            <div className="exception-list">
+              {attentionItems.map((item) => (
+                <button key={item.id} className={`exception-row exception-row--${item.severity}`} onClick={() => navigate(item.href)}>
+                  <i />
+                  <span><strong>{item.title}</strong><small>{item.detail}</small></span>
+                  <Icon name="arrow" size={14} />
+                </button>
               ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="load-cards">
-          {activeLoads.map((load) => (
-            <button className="load-card" key={load.id} onClick={() => navigate('/loads')}>
-              <div><strong>{load.loadNumber}</strong><StatusPill status={load.status} /></div>
-              <span className="load-card__customer">{load.customer}</span>
-              <p>{load.pickup} <Icon name="arrow" size={14} /> {load.delivery}</p>
-              <small>{load.appointment} · {load.driver}</small>
-              <div className="progress-track"><span style={{ width: `${load.progress}%` }} /></div>
-            </button>
-          ))}
-        </div>
+            </div>
+          </section>
+
+          <section className="route-brief">
+            <header className="dispatch-section-head dispatch-section-head--compact">
+              <div><span>NEXT MOVEMENT</span><h3>LH-1028</h3></div>
+              <Icon name="route" size={19} />
+            </header>
+            <div className="route-brief__stops">
+              <div><b>A</b><span><small>PICKUP · 8:00 PM</small><strong>Fort Worth, TX</strong><em>Titan Industrial</em></span></div>
+              <i />
+              <div><b>B</b><span><small>DELIVERY · TOMORROW</small><strong>Midland, TX</strong><em>8:00 AM appointment</em></span></div>
+            </div>
+            <dl className="route-brief__facts">
+              <div><dt>Distance</dt><dd>318 mi</dd></div>
+              <div><dt>Drive</dt><dd>4 hr 42 min</dd></div>
+              <div><dt>Pickup ETA</dt><dd>7:38 PM</dd></div>
+            </dl>
+            <button onClick={() => navigate('/loads')}>Open shipment workspace <Icon name="arrow" size={15} /></button>
+          </section>
+        </aside>
       </section>
 
-      <section className="dashboard-grid dashboard-grid--bottom">
-        <article className="panel schedule-panel">
-          <div className="panel__header">
-            <div><span className="panel__eyebrow">NEXT FIVE DAYS</span><h3>Load Schedule</h3></div>
-          </div>
-          <div className="schedule-grid">
-            {weeklySchedule.map((day, index) => (
-              <div className={`schedule-day ${index === 0 ? 'schedule-day--today' : ''}`} key={day.date}>
-                <span>{day.day}</span><strong>{day.date}</strong>
-                <div><small>{day.pickups} PU</small><small>{day.deliveries} DEL</small></div>
+      <section className="capacity-board">
+        <header className="dispatch-section-head">
+          <div><span>FIVE-DAY CAPACITY</span><h3>Pickup & Delivery Schedule</h3></div>
+          <button onClick={() => navigate('/loads')}>Open calendar <Icon name="arrow" size={14} /></button>
+        </header>
+        <div className="capacity-timeline">
+          {weeklySchedule.map((day, index) => {
+            const total = day.pickups + day.deliveries
+            return (
+              <div className={`capacity-day ${index === 0 ? 'capacity-day--today' : ''}`} key={day.date}>
+                <div><span>{day.day}</span><strong>{day.date}</strong></div>
+                <div className="capacity-day__counts"><span><b>{day.pickups}</b> pickups</span><span><b>{day.deliveries}</b> deliveries</span></div>
+                <div className="capacity-meter"><span style={{ width: `${Math.min(100, total * 24)}%` }} /></div>
+                <small>{total === 0 ? 'Open capacity' : `${total} scheduled movement${total === 1 ? '' : 's'}`}</small>
               </div>
-            ))}
-          </div>
-        </article>
-
-        <article className="panel quick-actions-panel">
-          <div className="panel__header"><div><span className="panel__eyebrow">SAVE TIME</span><h3>Quick Actions</h3></div></div>
-          <div className="quick-actions">
-            <button onClick={() => navigate('/loads/new')}><Icon name="plus" /><span><strong>New Load</strong><small>Create or enter a request</small></span></button>
-            <button onClick={() => navigate('/communications')}><Icon name="messages" /><span><strong>Status Update</strong><small>Send a customer update</small></span></button>
-            <button onClick={() => navigate('/documents')}><Icon name="documents" /><span><strong>Upload POD</strong><small>Attach delivery paperwork</small></span></button>
-            <button onClick={() => navigate('/invoices')}><Icon name="invoices" /><span><strong>New Invoice</strong><small>Bill a completed load</small></span></button>
-          </div>
-        </article>
+            )
+          })}
+        </div>
       </section>
     </div>
   )
