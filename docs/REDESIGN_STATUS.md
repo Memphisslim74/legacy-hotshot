@@ -1,6 +1,6 @@
 # Legacy Hotshot redesign status
 
-Latest validated commit: `0b0e0c0b6e8c715c112f54d0268f78017d1a2bf4`
+Latest validated commit: `e9bcf110f3f93aac2562db2a6d09eb1d4623f730`
 
 Validated with:
 - TypeScript check
