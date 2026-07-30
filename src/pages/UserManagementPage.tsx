@@ -5,6 +5,7 @@ import { Icon } from '../components/Icon'
 import {
   listManagedUsers,
   sendManagedUserPasswordReset,
+  setManagedUserPassword,
   updateManagedUser,
 } from '../lib/userManagement'
 import type { ManagedUser } from '../lib/userManagement'
@@ -65,8 +66,12 @@ export function UserManagementPage() {
   const [phone, setPhone] = useState('')
   const [role, setRole] = useState<UserRole>('driver')
   const [isActive, setIsActive] = useState(true)
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPasswords, setShowPasswords] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [settingPassword, setSettingPassword] = useState(false)
   const [resetting, setResetting] = useState(false)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
@@ -100,6 +105,9 @@ export function UserManagementPage() {
     setPhone(selected.phone)
     setRole(selected.role)
     setIsActive(selected.isActive)
+    setNewPassword('')
+    setConfirmPassword('')
+    setShowPasswords(false)
     setMessage('')
     setError('')
   }, [selected])
@@ -123,6 +131,36 @@ export function UserManagementPage() {
     }
   }
 
+  const setPassword = async () => {
+    if (!selected) return
+    setMessage('')
+    setError('')
+
+    if (newPassword.length < 12) {
+      setError('Use at least 12 characters for the password.')
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setError('The two password entries do not match.')
+      return
+    }
+
+    setSettingPassword(true)
+    try {
+      const result = user?.demo
+        ? { message: `Demo password was updated for ${selected.email}.` }
+        : await setManagedUserPassword(selected.id, newPassword)
+      setNewPassword('')
+      setConfirmPassword('')
+      setShowPasswords(false)
+      setMessage(result.message)
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Unable to set the new password.')
+    } finally {
+      setSettingPassword(false)
+    }
+  }
+
   const sendReset = async () => {
     if (!selected) return
     setResetting(true)
@@ -130,11 +168,11 @@ export function UserManagementPage() {
     setError('')
     try {
       const result = user?.demo
-        ? { message: `Demo password reset email prepared for ${selected.email}.` }
+        ? { message: `Demo branded password reset email prepared for ${selected.email}.` }
         : await sendManagedUserPasswordReset(selected.id)
       setMessage(result.message)
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Unable to send the password reset email.')
+      setError(caught instanceof Error ? caught.message : 'Unable to send the branded password reset email.')
     } finally {
       setResetting(false)
     }
@@ -145,8 +183,8 @@ export function UserManagementPage() {
   return (
     <div className="user-management-page">
       <section className="settings-hero">
-        <div><span className="eyebrow">OWNER ACCESS</span><h2>User Management</h2><p>Edit names, email addresses, phone numbers, roles, and account access. Passwords are never displayed or shared.</p></div>
-        <div className="settings-access-note"><Icon name="alert" size={18} /><span>Only Legacy Hotshot owners can manage user accounts or send password-reset emails.</span></div>
+        <div><span className="eyebrow">OWNER ACCESS</span><h2>User Management</h2><p>Edit names, email addresses, phone numbers, roles, account access, and password security.</p></div>
+        <div className="settings-access-note"><Icon name="alert" size={18} /><span>Only Legacy Hotshot owners can manage user accounts, assign passwords, or send branded password-reset emails.</span></div>
       </section>
 
       {message && <div className="form-success operations-alert">{message}</div>}
@@ -184,11 +222,25 @@ export function UserManagementPage() {
                 <div><span>Account created</span><strong>{new Date(selected.createdAt).toLocaleDateString()}</strong></div>
               </div>
 
+              <section className="user-security-section">
+                <div className="user-security-heading">
+                  <div><span className="panel__eyebrow">PASSWORD SECURITY</span><h4>Set or reset password</h4></div>
+                  <button className="text-button" type="button" onClick={() => setShowPasswords((current) => !current)}>{showPasswords ? 'Hide passwords' : 'Show passwords'}</button>
+                </div>
+                <div className="user-password-grid">
+                  <label>New password<input type={showPasswords ? 'text' : 'password'} value={newPassword} onChange={(event) => setNewPassword(event.target.value)} minLength={12} autoComplete="new-password" placeholder="At least 12 characters" /></label>
+                  <label>Confirm password<input type={showPasswords ? 'text' : 'password'} value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} minLength={12} autoComplete="new-password" placeholder="Enter it again" /></label>
+                </div>
+                <div className="user-security-actions">
+                  <button className="secondary-button" type="button" onClick={sendReset} disabled={resetting || !selected.isActive}><Icon name="messages" size={17} />{resetting ? 'Sending...' : 'Send Branded Reset Email'}</button>
+                  <button className="secondary-button" type="button" onClick={setPassword} disabled={settingPassword || !selected.isActive || !newPassword || !confirmPassword}>{settingPassword ? 'Setting Password...' : 'Set Password Manually'}</button>
+                </div>
+                <p className="user-reset-note">Manual password assignment changes the password immediately. The branded email sends a secure Legacy Hotshot link so the user can choose their own password.</p>
+              </section>
+
               <div className="user-editor-actions">
-                <button className="secondary-button" type="button" onClick={sendReset} disabled={resetting || !selected.isActive}><Icon name="messages" size={17} />{resetting ? 'Sending...' : 'Send Password Reset'}</button>
                 <button className="primary-button" type="submit" disabled={saving}>{saving ? 'Saving...' : 'Save User'}</button>
               </div>
-              <p className="user-reset-note">The reset button emails a secure link. The owner never sees or chooses the user’s new password.</p>
             </form>
           )}
         </article>
