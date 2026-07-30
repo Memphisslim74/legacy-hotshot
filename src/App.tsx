@@ -8,7 +8,7 @@ import { SetupPage } from './pages/SetupPage'
 import { LoadsPage } from './pages/LoadsPage'
 import { NewLoadPage } from './pages/NewLoadPage'
 import { LoadDetailPage } from './pages/LoadDetailPage'
-import { CustomersPage } from './pages/CustomersPage'
+import { RelationshipDirectoryPage } from './pages/RelationshipDirectoryPage'
 import { DocumentsPage } from './pages/DocumentsPage'
 import { QuotesPage } from './pages/QuotesPage'
 import { PublicLoadRequestPage } from './pages/PublicLoadRequestPage'
@@ -63,7 +63,7 @@ export default function App() {
           <Route path="loads/new" element={<NewLoadPage />} />
           <Route path="loads/:id" element={<LoadDetailPage />} />
           <Route path="quotes" element={<QuotesPage />} />
-          <Route path="customers" element={<CustomersPage />} />
+          <Route path="customers" element={<RelationshipDirectoryPage />} />
           <Route path="drivers" element={<PlaceholderPage />} />
           <Route path="vehicles" element={<PlaceholderPage />} />
           <Route path="communications" element={<PlaceholderPage />} />
