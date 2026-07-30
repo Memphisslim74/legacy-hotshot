@@ -1,30 +1,93 @@
 import { supabase } from './supabase'
-import type { Customer, DocumentRecord, LoadRecord, LoadRequestInput, LoadRequestRecord } from '../types'
+import type { BusinessRelationshipType, Customer, DocumentRecord, LoadRecord, LoadRequestInput, LoadRequestRecord } from '../types'
 
 const requireClient = () => {
   if (!supabase) throw new Error('Supabase is not connected.')
   return supabase
 }
 
+export type BusinessRelationshipInput = {
+  companyName: string
+  relationshipTypes: BusinessRelationshipType[]
+  relationshipStatus: 'active' | 'inactive' | 'on_hold'
+  preferredPartner: boolean
+  primaryContact: string
+  email: string
+  phone: string
+  websiteUrl: string
+  city: string
+  state: string
+  paymentTerms: string
+  communicationPreference: string
+  vendorCategory: string
+  notes: string
+}
+
 export async function listCustomers(companyId: string): Promise<Customer[]> {
-  const { data, error } = await requireClient().from('customers').select('*').eq('company_id', companyId).order('company_name')
+  const { data, error } = await requireClient()
+    .from('customers')
+    .select('*, business_contacts(*)')
+    .eq('company_id', companyId)
+    .order('company_name')
   if (error) throw error
   return (data ?? []) as Customer[]
 }
 
-export async function createCustomer(companyId: string, userId: string, values: {
-  companyName: string; primaryContact: string; email: string; phone: string; paymentTerms: string; notes: string
-}) {
+export async function createCustomer(companyId: string, userId: string, values: BusinessRelationshipInput) {
   const { data, error } = await requireClient().from('customers').insert({
     company_id: companyId,
     company_name: values.companyName.trim(),
+    relationship_types: values.relationshipTypes,
+    relationship_status: values.relationshipStatus,
+    preferred_partner: values.preferredPartner,
     primary_contact: values.primaryContact.trim() || null,
     email: values.email.trim() || null,
     phone: values.phone.trim() || null,
+    website_url: values.websiteUrl.trim() || null,
+    city: values.city.trim() || null,
+    state: values.state.trim().toUpperCase() || null,
     payment_terms: values.paymentTerms,
+    communication_preference: values.communicationPreference,
+    vendor_category: values.vendorCategory.trim() || null,
     notes: values.notes.trim() || null,
     created_by: userId,
   }).select('*').single()
+  if (error) throw error
+
+  if (values.primaryContact.trim()) {
+    const { error: contactError } = await requireClient().from('business_contacts').insert({
+      company_id: companyId,
+      customer_id: data.id,
+      full_name: values.primaryContact.trim(),
+      email: values.email.trim() || null,
+      phone: values.phone.trim() || null,
+      contact_role: 'primary',
+      is_primary: true,
+      created_by: userId,
+    })
+    if (contactError) throw contactError
+  }
+
+  return { ...data, business_contacts: [] } as Customer
+}
+
+export async function updateCustomer(companyId: string, customerId: string, values: BusinessRelationshipInput) {
+  const { data, error } = await requireClient().from('customers').update({
+    company_name: values.companyName.trim(),
+    relationship_types: values.relationshipTypes,
+    relationship_status: values.relationshipStatus,
+    preferred_partner: values.preferredPartner,
+    primary_contact: values.primaryContact.trim() || null,
+    email: values.email.trim() || null,
+    phone: values.phone.trim() || null,
+    website_url: values.websiteUrl.trim() || null,
+    city: values.city.trim() || null,
+    state: values.state.trim().toUpperCase() || null,
+    payment_terms: values.paymentTerms,
+    communication_preference: values.communicationPreference,
+    vendor_category: values.vendorCategory.trim() || null,
+    notes: values.notes.trim() || null,
+  }).eq('id', customerId).eq('company_id', companyId).select('*').single()
   if (error) throw error
   return data as Customer
 }
