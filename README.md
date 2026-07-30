@@ -149,6 +149,8 @@ Do not use the service-role key in the browser application.
 
 ## Create Jared’s first owner account
 
+All new profiles default to the `driver` role. This prevents anyone from assigning themselves elevated access through signup metadata.
+
 1. Open Supabase.
 2. Select **Authentication**.
 3. Select **Users**.
@@ -157,18 +159,30 @@ Do not use the service-role key in the browser application.
 6. Enter Jared’s email address.
 7. Enter a temporary strong password.
 8. Turn on **Auto Confirm User** only if Jared should sign in immediately.
-9. In **User Metadata**, add:
+9. In **User Metadata**, optionally add:
 
 ```json
 {
-  "full_name": "Jared",
-  "role": "owner"
+  "full_name": "Jared"
 }
 ```
 
 10. Select **Create user**.
-11. The database trigger will create Jared’s `profiles` row automatically.
-12. Jared can then sign in and complete the company setup wizard.
+11. Open **SQL Editor** and select **New query**.
+12. Replace the email in the statement below with Jared’s exact account email, then run it:
+
+```sql
+update public.profiles as profile
+set role = 'owner'
+from auth.users as auth_user
+where profile.id = auth_user.id
+  and lower(auth_user.email) = lower('jared@example.com');
+```
+
+13. Confirm the result reports one updated row.
+14. Jared can now sign in and complete the company setup wizard.
+
+Keep public self-registration disabled unless a later project stage intentionally adds a controlled invitation workflow.
 
 ## Cloudflare Pages deployment
 
