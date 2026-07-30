@@ -1,226 +1,205 @@
 # Legacy Hotshot Command Center
 
-A mobile-first operations command center for **Legacy Hotshot LLC**. The application is designed to help Jared manage loads, customer communication, documents, drivers, vehicles, expenses, invoices, and business performance without turning the first version into an oversized enterprise system.
+A mobile-first operations command center for **Legacy Hotshot LLC**, owned by **Jared Guinn**.
 
-## Stage 1
+Live application:
 
-This branch contains the production foundation:
+```text
+https://legacy-hotshot.pages.dev
+```
+
+Public load request form:
+
+```text
+https://legacy-hotshot.pages.dev/request-load
+```
+
+## Current application status
+
+The repository currently includes:
 
 - React, TypeScript, and Vite
-- Cloudflare Pages routing and health endpoint
+- Cloudflare Pages deployment
 - Responsive owner dashboard
-- Mobile navigation foundation
-- Supabase authentication client
-- Owner, dispatcher, driver, and finance role foundation
+- Supabase authentication and role foundation
 - First-time company setup wizard
-- Company, profile, settings, notification, and audit tables
+- Customers
+- Public and internal load requests
+- Quotes
+- Booked loads and status history
+- Load profitability and mileage fields
+- Private operational documents
 - Row Level Security policies
-- Demo preview with a small amount of clearly labeled sample data
-- GitHub Actions type-check and production build validation
+- Demo mode until Supabase is activated
 
-The following modules are visible in navigation but intentionally labeled by future stage until their real database workflows are built:
+## Important: Supabase is currently a fresh project
 
-- Loads and load requests
-- Customers and quotes
-- Documents
-- Driver portal
-- Communications and Legacy LiveTrack
-- Expenses, invoices, reports, drivers, and vehicles
+No Legacy Hotshot migrations have been run yet.
 
-## Repository structure
+Do not begin with migration 004 or 005. Run **every SQL file** in `supabase/migrations` in filename order.
+
+### Required migration order
+
+1. `202607290001_stage1_foundation.sql`
+   - Creates companies, profiles, company settings, notifications, audit logs, role types, triggers, helper functions, and initial Row Level Security.
+
+2. `202607290002_setup_persistence.sql`
+   - Adds the secure first-time owner setup function used by the application.
+
+3. `202607290003_legacy_brand_defaults.sql`
+   - Applies the approved Legacy red brand color and the owner name Jared Guinn.
+
+4. `202607290004_stage2_operations.sql`
+   - Creates customers, load requests, quotes, loads, status history, documents, operational functions, and related security policies.
+
+5. `202607290005_private_document_storage.sql`
+   - Creates the private `legacy-documents` Supabase Storage bucket and its access policies.
+
+## Exact fresh Supabase setup
+
+### 1. Run migration 001
+
+1. Open the Legacy Hotshot project in Supabase.
+2. Select **SQL Editor**.
+3. Select **New query**.
+4. Open `supabase/migrations/202607290001_stage1_foundation.sql` in GitHub.
+5. Copy the entire file.
+6. Paste it into Supabase SQL Editor.
+7. Select **Run**.
+8. Wait for a successful result before continuing.
+
+### 2. Run migrations 002 through 005
+
+Repeat the same process, one file at a time, in this exact order:
 
 ```text
-src/
-  auth/          Authentication and role-aware profile loading
-  components/    Application shell and reusable interface components
-  data/          Stage 1 demo data
-  lib/           Supabase and future service clients
-  pages/         Login, setup, dashboard, and staged module screens
-functions/api/   Cloudflare Pages Functions
-public/          Cloudflare redirects and web-app manifest
-supabase/        Versioned SQL migrations
+202607290002_setup_persistence.sql
+202607290003_legacy_brand_defaults.sql
+202607290004_stage2_operations.sql
+202607290005_private_document_storage.sql
 ```
 
-## Current Supabase project
+Do not paste multiple migrations into one query. Run each file separately so an error is easy to identify.
+
+### 3. Verify the database
+
+Open **Table Editor** and confirm these tables exist:
 
 ```text
-https://hxbetjesuxmujtpcwxxz.supabase.co
+companies
+profiles
+company_settings
+notifications
+audit_logs
+customers
+load_requests
+quotes
+loads
+load_status_history
+documents
 ```
 
-## Local setup
+Open **Storage** and confirm:
+
+```text
+Bucket: legacy-documents
+Visibility: Private
+```
+
+Do not make the bucket public.
+
+## Create Jared Guinn's owner account
+
+Create the user only after migration 001 has been run, because migration 001 creates the trigger that automatically creates the matching profile.
+
+1. Open **Authentication → Users**.
+2. Select **Add user → Create new user**.
+3. Enter Jared Guinn's email address.
+4. Enter a temporary strong password.
+5. Enable **Auto Confirm User** when he should be able to sign in immediately.
+6. Add this user metadata:
+
+```json
+{
+  "full_name": "Jared Guinn"
+}
+```
+
+7. Create the user.
+8. Open **SQL Editor → New query**.
+9. Replace the example email with Jared's exact email and run:
+
+```sql
+update public.profiles as profile
+set role = 'owner',
+    full_name = 'Jared Guinn'
+from auth.users as auth_user
+where profile.id = auth_user.id
+  and lower(auth_user.email) = lower('jared@example.com');
+```
+
+10. Confirm one row was updated.
+11. Jared can then sign in and complete the first-time company setup wizard.
+
+All newly created users default to `driver`. Keep public self-registration disabled until a controlled invitation workflow is added.
+
+## Supabase browser values
+
+Open **Supabase → Project Settings → Data API** and copy the browser-safe publishable key.
+
+Use:
+
+```text
+VITE_SUPABASE_URL=https://hxbetjesuxmujtpcwxxz.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=<Supabase publishable key>
+VITE_ENABLE_DEMO_MODE=false
+ENVIRONMENT=production
+```
+
+Never place the service-role key in a `VITE_` variable or frontend code.
+
+## Add the values to Cloudflare Pages
+
+1. Open **Cloudflare → Workers & Pages**.
+2. Select `legacy-hotshot`.
+3. Open **Settings → Environment variables**.
+4. Add the four values listed above under **Production**.
+5. Save them.
+6. Open **Deployments**.
+7. Retry the latest production deployment so Vite rebuilds with the new environment values.
+
+Cloudflare build settings:
+
+```text
+Production branch: main
+Framework preset: React
+Build command: npm run build
+Build output directory: dist
+Root directory: blank
+```
+
+## Supabase authentication URL settings
+
+Open **Authentication → URL Configuration** and use:
+
+```text
+Site URL: https://legacy-hotshot.pages.dev
+Redirect URL: https://legacy-hotshot.pages.dev/**
+```
+
+## Local development
 
 Use Node.js 22.12 or newer.
 
 ```bash
 git clone https://github.com/Memphisslim74/legacy-hotshot.git
 cd legacy-hotshot
-git checkout develop/stage-1-foundation
 npm install
 cp .env.example .env.local
 npm run dev
 ```
 
-Open the address shown by Vite, normally `http://localhost:5173`.
-
-To preview the interface before Supabase is connected, leave this value enabled:
-
-```text
-VITE_ENABLE_DEMO_MODE=true
-```
-
-Then select **Preview Stage 1 Demo** on the sign-in page.
-
-## Supabase environment values
-
-Open Supabase and go to **Project Settings → Data API**.
-
-Copy the project URL and publishable key into `.env.local`:
-
-```text
-VITE_SUPABASE_URL=https://hxbetjesuxmujtpcwxxz.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
-VITE_ENABLE_DEMO_MODE=true
-```
-
-The publishable key is intended for the browser client. Never place a service-role key in the frontend application.
-
-## Run the database migrations
-
-Run every SQL file in `supabase/migrations` in filename order.
-
-### Migration 1
-
-`202607290001_stage1_foundation.sql`
-
-Creates:
-
-- Companies
-- User profiles
-- Company settings
-- Notifications
-- Audit history
-- Role types
-- New-user profile trigger
-- Row Level Security policies
-
-### Migration 2
-
-`202607290002_setup_persistence.sql`
-
-Adds the secure setup function that saves every value collected by Jared’s first-time setup wizard.
-
-### Manual Supabase steps
-
-1. Open the Legacy Hotshot Supabase project.
-2. Select **SQL Editor**.
-3. Select **New query**.
-4. Open the first migration file from this repository.
-5. Copy the entire file into the SQL Editor.
-6. Select **Run**.
-7. Repeat the process for the second migration file.
-8. Open **Table Editor** and confirm these tables exist:
-   - `companies`
-   - `profiles`
-   - `company_settings`
-   - `notifications`
-   - `audit_logs`
-
-## Create Jared’s owner account
-
-All new profiles default to `driver`. This prevents a new account from assigning itself owner access.
-
-1. Open **Supabase → Authentication → Users**.
-2. Select **Add user → Create new user**.
-3. Enter Jared’s email address and a temporary strong password.
-4. Enable **Auto Confirm User** only when he should be able to sign in immediately.
-5. Optionally add this user metadata:
-
-```json
-{
-  "full_name": "Jared"
-}
-```
-
-6. Create the user.
-7. Open **SQL Editor → New query**.
-8. Replace the email below with Jared’s exact account email and run the query:
-
-```sql
-update public.profiles as profile
-set role = 'owner'
-from auth.users as auth_user
-where profile.id = auth_user.id
-  and lower(auth_user.email) = lower('jared@example.com');
-```
-
-9. Confirm one row was updated.
-10. Jared can now sign in and complete the setup wizard.
-
-Keep public self-registration disabled until a controlled invitation workflow is added.
-
-## Cloudflare Pages
-
-The GitHub repository already has a `main` branch. The complete Stage 1 application currently lives on `develop/stage-1-foundation` for review.
-
-After the pull request is approved and merged:
-
-1. Open **Cloudflare → Workers & Pages**.
-2. Select **Create application → Pages → Connect to Git**.
-3. Select `Memphisslim74/legacy-hotshot`.
-4. Use:
-   - Production branch: `main`
-   - Framework preset: `Vite`
-   - Build command: `npm run build`
-   - Output directory: `dist`
-   - Root directory: blank
-5. Add production environment variables:
-   - `VITE_SUPABASE_URL` = `https://hxbetjesuxmujtpcwxxz.supabase.co`
-   - `VITE_SUPABASE_PUBLISHABLE_KEY` = the Supabase publishable key
-   - `VITE_ENABLE_DEMO_MODE` = `false`
-   - `ENVIRONMENT` = `production`
-6. Deploy.
-7. Open `/api/health` on the Pages domain and confirm the response contains `"ok": true`.
-
-For branch previews, use the same Supabase values and leave demo mode enabled until Jared’s owner account is ready.
-
-## Supabase authentication URLs
-
-After Cloudflare creates the Pages domain:
-
-1. Open **Supabase → Authentication → URL Configuration**.
-2. Set **Site URL** to the production Cloudflare Pages URL.
-3. Add the production URL and any active Cloudflare preview URL under **Redirect URLs**.
-4. Save.
-
-## Branding
-
-The Stage 1 interface uses the real Legacy visual direction supplied for the project:
-
-- Black and white foundation
-- Silver and charcoal neutrals
-- Steel-blue accent
-- Winged Legacy-style temporary mark
-- Clean, non-generic trucking presentation
-
-The exact logo and truck photographs should be stored as repository assets before the final production branding pass. Secure logo upload is scheduled with the private branding storage work.
-
-## Resend
-
-Resend is deferred until the real load communication workflows are built. No Resend secret is required for Stage 1.
-
-## Still needed
-
-- Supabase publishable key
-- Jared’s owner email address
-- Cloudflare Pages project URL after deployment
-- Original logo image file for repository storage
-- Selected truck hero photo file
-- Business phone and company email
-- MC and USDOT numbers when Jared is ready
-
 ## Validation
-
-GitHub Actions runs:
 
 ```bash
 npm install --no-audit --no-fund
@@ -228,4 +207,4 @@ npm run typecheck
 npm run build
 ```
 
-Do not merge the Stage 1 pull request until that workflow passes.
+More activation details are available in `docs/STAGE2_SETUP.md`.
