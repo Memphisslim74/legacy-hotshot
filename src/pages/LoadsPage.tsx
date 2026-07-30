@@ -61,6 +61,8 @@ const statusLabels: Record<LoadStatus, string> = {
   request_received: 'Request Received', reviewing: 'Reviewing', quoted: 'Quoted', booked: 'Booked', driver_assigned: 'Driver Assigned', en_route_to_pickup: 'En Route to Pickup', arrived_at_pickup: 'Arrived at Pickup', loaded: 'Loaded', in_transit: 'In Transit', delayed: 'Delayed', arrived_at_delivery: 'Arrived at Delivery', delivered: 'Delivered', pod_received: 'POD Received', invoice_sent: 'Invoice Sent', paid: 'Paid', cancelled: 'Cancelled',
 }
 
+const movementStatuses: LoadStatus[] = ['driver_assigned', 'en_route_to_pickup', 'arrived_at_pickup', 'loaded', 'in_transit', 'arrived_at_delivery']
+
 export function LoadsPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -103,6 +105,14 @@ export function LoadsPage() {
     return !query || [request.request_number, request.requester_company, request.requester_name, request.pickup_city, request.delivery_city, request.freight_description].some((value) => value?.toLowerCase().includes(query))
   }), [requests, search])
 
+  const summary = useMemo(() => ({
+    all: loads.length,
+    moving: loads.filter((load) => movementStatuses.includes(load.status)).length,
+    delayed: loads.filter((load) => load.status === 'delayed').length,
+    delivered: loads.filter((load) => ['delivered', 'pod_received', 'invoice_sent', 'paid'].includes(load.status)).length,
+    requests: requests.length,
+  }), [loads, requests])
+
   const changeStatus = async (load: LoadRecord, next: LoadStatus) => {
     if (!user) return
     const previous = load.status
@@ -116,55 +126,66 @@ export function LoadsPage() {
   }
 
   return (
-    <div className="operations-page">
-      <div className="page-command-row">
-        <div><span className="eyebrow">LIVE OPERATIONS</span><h2>Loads</h2><p>Manage active work, incoming requests, routes, and delivery progress.</p></div>
-        <button className="primary-button" onClick={() => navigate('/loads/new')}><Icon name="plus" size={17} /> New Load</button>
-      </div>
-
-      {error && <div className="form-error operations-alert">{error}</div>}
-
-      <div className="operations-tabs">
-        <button className={tab === 'loads' ? 'active' : ''} onClick={() => setTab('loads')}>Active Loads <span>{loads.length}</span></button>
-        <button className={tab === 'requests' ? 'active' : ''} onClick={() => setTab('requests')}>Load Requests <span>{requests.length}</span></button>
-      </div>
-
-      <section className="panel operations-toolbar">
-        <label className="operations-search"><Icon name="search" size={18} /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search load, customer, city, or freight" /></label>
-        {tab === 'loads' && <select value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">All statuses</option>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>}
+    <div className="load-operations-page">
+      <section className="load-register-head">
+        <div>
+          <span>DISPATCH REGISTER</span>
+          <h2>{tab === 'loads' ? 'Shipment Control' : 'Request Intake'}</h2>
+          <p>{tab === 'loads' ? 'Monitor load movement, appointments, driver assignment, and commercial status.' : 'Qualify incoming work before quoting or dispatching it.'}</p>
+        </div>
+        <button onClick={() => navigate('/loads/new')}><Icon name="plus" size={16} /> Create Load</button>
       </section>
 
-      {loading ? <div className="panel empty-state">Loading operations...</div> : tab === 'loads' ? (
-        <section className="panel operations-table-card">
-          <div className="responsive-table-wrap">
-            <table className="operations-table">
-              <thead><tr><th>Load</th><th>Customer</th><th>Route</th><th>Pickup</th><th>Status</th><th>Rate</th><th /></tr></thead>
+      {error && <div className="load-register-alert">{error}</div>}
+
+      <section className="load-status-strip" aria-label="Load operating summary">
+        <button className={tab === 'loads' && status === 'all' ? 'active' : ''} onClick={() => { setTab('loads'); setStatus('all') }}><span>All loads</span><strong>{summary.all}</strong></button>
+        <button className={tab === 'loads' && status === 'in_transit' ? 'active' : ''} onClick={() => { setTab('loads'); setStatus('in_transit') }}><span>In movement</span><strong>{summary.moving}</strong></button>
+        <button className={tab === 'loads' && status === 'delayed' ? 'active' : ''} onClick={() => { setTab('loads'); setStatus('delayed') }}><span>Delayed</span><strong>{summary.delayed}</strong></button>
+        <button className={tab === 'loads' && status === 'delivered' ? 'active' : ''} onClick={() => { setTab('loads'); setStatus('delivered') }}><span>Delivered</span><strong>{summary.delivered}</strong></button>
+        <button className={tab === 'requests' ? 'active' : ''} onClick={() => setTab('requests')}><span>Requests</span><strong>{summary.requests}</strong></button>
+      </section>
+
+      <section className="load-register-toolbar">
+        <label><Icon name="search" size={17} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={tab === 'loads' ? 'Search load, customer, city, or freight' : 'Search request, company, route, or freight'} /></label>
+        {tab === 'loads' && <select value={status} onChange={(event) => setStatus(event.target.value)}><option value="all">All statuses</option>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>}
+        <span>{tab === 'loads' ? `${visibleLoads.length} shipments shown` : `${visibleRequests.length} requests shown`}</span>
+      </section>
+
+      {loading ? <div className="load-register-empty">Loading operations...</div> : tab === 'loads' ? (
+        <section className="shipment-register">
+          <div className="shipment-register__table-wrap">
+            <table>
+              <thead><tr><th>Load</th><th>Business</th><th>Route</th><th>Pickup appointment</th><th>Driver</th><th>Status</th><th>Rate</th><th /></tr></thead>
               <tbody>{visibleLoads.map((load) => (
                 <tr key={load.id}>
-                  <td><strong>{load.load_number}</strong><span>{load.freight_description}</span></td>
-                  <td>{load.customers?.company_name || load.pickup_company || 'Unassigned customer'}</td>
-                  <td><strong>{load.pickup_city}, {load.pickup_state}</strong><span>to {load.delivery_city}, {load.delivery_state}</span></td>
-                  <td>{load.pickup_at ? new Date(load.pickup_at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'Not scheduled'}</td>
-                  <td><select className={`status-select status-select--${load.status}`} value={load.status} onChange={(e) => changeStatus(load, e.target.value as LoadStatus)}>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></td>
-                  <td>${Number(load.customer_rate || 0).toLocaleString()}</td>
-                  <td><button className="icon-button" onClick={() => navigate(`/loads/${load.id}`)} aria-label={`Open ${load.load_number}`}><Icon name="arrow" size={17} /></button></td>
+                  <td className="shipment-register__id"><strong>{load.load_number}</strong><span>{load.freight_description}</span></td>
+                  <td><strong>{load.customers?.company_name || load.pickup_company || 'Unassigned customer'}</strong><span>{load.pickup_company}</span></td>
+                  <td className="shipment-register__route"><strong>{load.pickup_city}, {load.pickup_state}</strong><i /><span>{load.delivery_city}, {load.delivery_state}</span></td>
+                  <td><strong>{load.pickup_at ? new Date(load.pickup_at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'Not scheduled'}</strong><span>{load.current_eta ? `ETA ${new Date(load.current_eta).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : 'No live ETA'}</span></td>
+                  <td><strong>{load.driver_id ? 'Assigned driver' : 'Unassigned'}</strong><span>{load.equipment_requirements || 'Equipment pending'}</span></td>
+                  <td><select className={`status-select status-select--${load.status}`} value={load.status} onChange={(event) => changeStatus(load, event.target.value as LoadStatus)}>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></td>
+                  <td><strong>${Number(load.customer_rate || 0).toLocaleString()}</strong><span>{Number(load.loaded_miles || 0).toLocaleString()} loaded mi</span></td>
+                  <td><button onClick={() => navigate(`/loads/${load.id}`)} aria-label={`Open ${load.load_number}`}><Icon name="arrow" size={16} /></button></td>
                 </tr>
               ))}</tbody>
             </table>
           </div>
-          {!visibleLoads.length && <div className="empty-state">No loads match the current filters.</div>}
+          {!visibleLoads.length && <div className="load-register-empty">No loads match the current filters.</div>}
         </section>
       ) : (
-        <section className="request-card-list">
+        <section className="request-intake-queue">
+          <div className="request-intake-queue__header"><span>Request</span><span>Requested by</span><span>Route</span><span>Qualification</span><span>Actions</span></div>
           {visibleRequests.map((request) => (
-            <article className="panel request-card" key={request.id}>
-              <div className="request-card__main"><div><span className="request-number">{request.request_number}</span><h3>{request.requester_company || request.requester_name}</h3><p>{request.freight_description}</p></div><span className={`request-status request-status--${request.status}`}>{request.status}</span></div>
-              <div className="request-route"><div><small>PICKUP</small><strong>{request.pickup_city}, {request.pickup_state}</strong><span>{request.pickup_date || 'Date pending'}</span></div><Icon name="arrow" /><div><small>DELIVERY</small><strong>{request.delivery_city}, {request.delivery_state}</strong><span>{request.delivery_date || 'Date pending'}</span></div></div>
-              {request.missing_fields.length > 0 && <div className="missing-fields"><Icon name="alert" size={17} /><div><strong>Legacy Load Checklist</strong><span>{request.missing_fields.join(' · ')}</span></div></div>}
-              <div className="request-card__actions"><button className="secondary-button">Request Information</button><button className="secondary-button">Create Quote</button><button className="primary-button" onClick={() => navigate('/loads/new')}>Convert to Load</button></div>
+            <article key={request.id}>
+              <div><strong>{request.request_number}</strong><span>{request.freight_description}</span></div>
+              <div><strong>{request.requester_company || request.requester_name}</strong><span>{request.requester_name} · {request.requester_phone}</span></div>
+              <div className="request-intake-route"><strong>{request.pickup_city}, {request.pickup_state}</strong><Icon name="arrow" size={13} /><strong>{request.delivery_city}, {request.delivery_state}</strong><span>{request.pickup_date || 'Pickup pending'} · {request.delivery_date || 'Delivery pending'}</span></div>
+              <div className={request.missing_fields.length ? 'request-intake-check request-intake-check--warning' : 'request-intake-check'}><Icon name={request.missing_fields.length ? 'alert' : 'check'} size={15} /><span><strong>{request.missing_fields.length ? `${request.missing_fields.length} missing details` : 'Ready to quote'}</strong><small>{request.missing_fields.join(' · ') || 'Required information is complete.'}</small></span></div>
+              <div className="request-intake-actions"><button>Request Info</button><button>Create Quote</button><button onClick={() => navigate('/loads/new')}>Convert</button></div>
             </article>
           ))}
-          {!visibleRequests.length && <div className="panel empty-state">No load requests match your search.</div>}
+          {!visibleRequests.length && <div className="load-register-empty">No load requests match your search.</div>}
         </section>
       )}
     </div>
