@@ -12,6 +12,14 @@ import './user-security.css'
 import './professional.css'
 import './relationships.css'
 import './tracker.css'
+import './legacy-operations.css'
+import './admin-workspace.css'
+import './sample-preview.css'
+import './relationship-directory-v2.css'
+import './account-administration.css'
+import './driver-route-command.css'
+import './operational-records.css'
+import './field-operations.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

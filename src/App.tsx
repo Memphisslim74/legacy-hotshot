@@ -8,16 +8,16 @@ import { SetupPage } from './pages/SetupPage'
 import { LoadsPage } from './pages/LoadsPage'
 import { NewLoadPage } from './pages/NewLoadPage'
 import { LoadDetailPage } from './pages/LoadDetailPage'
-import { CustomersPage } from './pages/CustomersPage'
+import { RelationshipDirectoryPage } from './pages/RelationshipDirectoryPage'
 import { DocumentsPage } from './pages/DocumentsPage'
 import { QuotesPage } from './pages/QuotesPage'
 import { PublicLoadRequestPage } from './pages/PublicLoadRequestPage'
 import { PublicLoadTrackerPage } from './pages/PublicLoadTrackerPage'
 import { CompanySettingsPage } from './pages/CompanySettingsPage'
 import { DriverPortalPage } from './pages/DriverPortalPage'
-import { DriverLoadPage } from './pages/DriverLoadPage'
+import { DriverLoadWorkspacePage } from './pages/DriverLoadWorkspacePage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
-import { UserManagementPage } from './pages/UserManagementPage'
+import { AccountAdministrationPage } from './pages/AccountAdministrationPage'
 
 function LoadingScreen() {
   return <div className="loading-screen"><div className="loading-mark">L</div><span>Loading Command Center...</span></div>
@@ -55,7 +55,7 @@ export default function App() {
       <Route path="/track/:token" element={<PublicLoadTrackerPage />} />
       <Route element={<ProtectedLayout />}>
         <Route path="driver" element={<DriverPortalPage />} />
-        <Route path="driver/loads/:id" element={<DriverLoadPage />} />
+        <Route path="driver/loads/:id" element={<DriverLoadWorkspacePage />} />
         <Route path="documents" element={<DocumentsPage />} />
         <Route element={<OfficeOnly />}>
           <Route index element={<DashboardPage />} />
@@ -63,7 +63,7 @@ export default function App() {
           <Route path="loads/new" element={<NewLoadPage />} />
           <Route path="loads/:id" element={<LoadDetailPage />} />
           <Route path="quotes" element={<QuotesPage />} />
-          <Route path="customers" element={<CustomersPage />} />
+          <Route path="customers" element={<RelationshipDirectoryPage />} />
           <Route path="drivers" element={<PlaceholderPage />} />
           <Route path="vehicles" element={<PlaceholderPage />} />
           <Route path="communications" element={<PlaceholderPage />} />
@@ -72,7 +72,7 @@ export default function App() {
           <Route path="reports" element={<PlaceholderPage />} />
           <Route path="settings" element={<CompanySettingsPage />} />
           <Route element={<OwnerOnly />}>
-            <Route path="users" element={<UserManagementPage />} />
+            <Route path="users" element={<AccountAdministrationPage />} />
           </Route>
         </Route>
       </Route>

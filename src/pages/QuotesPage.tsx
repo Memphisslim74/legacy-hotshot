@@ -8,16 +8,22 @@ import type { LoadRequestRecord } from '../types'
 
 const demoQuotes: QuoteRecord[] = [
   { id: 'quote-1', quote_number: 'LHQ-1003', load_request_id: 'request-1', estimated_mileage: 285, base_rate: 1950, fuel_surcharge: 225, tarping_charge: 0, additional_services: 0, total_amount: 2175, detention_terms: '2 hours free, then $95/hour', payment_terms: 'Net 30', expires_at: new Date(Date.now()+172800000).toISOString(), notes: null, status: 'sent', public_token: 'demo-quote-token', created_at: new Date().toISOString(), load_requests: { request_number: 'LHR-1003', requester_company: 'High Plains Fabrication', requester_name: 'Kara Ellis', requester_email: 'shipping@highplainsfab.com', pickup_city: 'Abilene', pickup_state: 'TX', delivery_city: 'Odessa', delivery_state: 'TX', freight_description: 'Skid-mounted pump equipment' } },
+  { id: 'quote-2', quote_number: 'LHQ-1004', load_request_id: 'request-2', estimated_mileage: 342, base_rate: 2350, fuel_surcharge: 290, tarping_charge: 175, additional_services: 85, total_amount: 2900, detention_terms: '2 hours free, then $95/hour', payment_terms: 'Net 30', expires_at: new Date(Date.now()+259200000).toISOString(), notes: 'Requires tarping and edge protection.', status: 'draft', public_token: 'demo-quote-token-2', created_at: new Date(Date.now()-3600000).toISOString(), load_requests: { request_number: 'LHR-1004', requester_company: 'Red River Machinery', requester_name: 'Angela Price', requester_email: 'angela@redrivermachinery.com', pickup_city: 'Wichita Falls', pickup_state: 'TX', delivery_city: 'Lubbock', delivery_state: 'TX', freight_description: 'Compact excavator attachment' } },
 ]
+
+const quoteStatuses: QuoteRecord['status'][] = ['draft', 'sent', 'approved', 'declined', 'expired', 'converted']
+const statusLabel = (value: QuoteRecord['status']) => value.charAt(0).toUpperCase() + value.slice(1)
 
 export function QuotesPage() {
   const { user } = useAuth()
   const [quotes, setQuotes] = useState<QuoteRecord[]>([])
   const [requests, setRequests] = useState<LoadRequestRecord[]>([])
   const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | QuoteRecord['status']>('all')
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [showingSampleData, setShowingSampleData] = useState(false)
   const [values, setValues] = useState({ loadRequestId: '', estimatedMileage: '', baseRate: '', fuelSurcharge: '', tarpingCharge: '', additionalServices: '', detentionTerms: '2 hours free, then $95/hour', paymentTerms: 'Net 30', expiresAt: '', notes: '' })
 
   useEffect(() => {
@@ -26,10 +32,12 @@ export function QuotesPage() {
         if (!user?.companyId || user.demo) {
           setQuotes(demoQuotes)
           setRequests([])
+          setShowingSampleData(true)
         } else {
           const [quoteRows, requestRows] = await Promise.all([listQuotes(user.companyId), listLoadRequests(user.companyId)])
-          setQuotes(quoteRows)
+          setQuotes(quoteRows.length ? quoteRows : demoQuotes)
           setRequests(requestRows.filter((request) => !['converted', 'cancelled', 'declined'].includes(request.status)))
+          setShowingSampleData(quoteRows.length === 0)
         }
       } catch (caught) {
         setError(caught instanceof Error ? caught.message : 'Unable to load quotes.')
@@ -40,8 +48,18 @@ export function QuotesPage() {
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
-    return quotes.filter((quote) => !query || [quote.quote_number, quote.load_requests?.request_number, quote.load_requests?.requester_company, quote.load_requests?.requester_name, quote.load_requests?.pickup_city, quote.load_requests?.delivery_city].some((value) => value?.toLowerCase().includes(query)))
-  }, [quotes, search])
+    return quotes.filter((quote) => {
+      const matchesSearch = !query || [quote.quote_number, quote.load_requests?.request_number, quote.load_requests?.requester_company, quote.load_requests?.requester_name, quote.load_requests?.pickup_city, quote.load_requests?.delivery_city].some((value) => value?.toLowerCase().includes(query))
+      return matchesSearch && (statusFilter === 'all' || quote.status === statusFilter)
+    })
+  }, [quotes, search, statusFilter])
+
+  const metrics = useMemo(() => ({
+    open: quotes.filter((quote) => ['draft', 'sent'].includes(quote.status)).length,
+    approved: quotes.filter((quote) => quote.status === 'approved').length,
+    converted: quotes.filter((quote) => quote.status === 'converted').length,
+    pipeline: quotes.filter((quote) => !['declined', 'expired'].includes(quote.status)).reduce((sum, quote) => sum + quote.total_amount, 0),
+  }), [quotes])
 
   const total = Number(values.baseRate || 0) + Number(values.fuelSurcharge || 0) + Number(values.tarpingCharge || 0) + Number(values.additionalServices || 0)
 
@@ -55,6 +73,7 @@ export function QuotesPage() {
         ? { ...demoQuotes[0], id: `demo-${Date.now()}`, quote_number: `LHQ-${Date.now().toString().slice(-4)}`, total_amount: total, base_rate: Number(values.baseRate || 0), fuel_surcharge: Number(values.fuelSurcharge || 0), tarping_charge: Number(values.tarpingCharge || 0), additional_services: Number(values.additionalServices || 0), status: 'draft', load_requests: request ? { request_number: request.request_number, requester_company: request.requester_company, requester_name: request.requester_name, requester_email: request.requester_email, pickup_city: request.pickup_city, pickup_state: request.pickup_state, delivery_city: request.delivery_city, delivery_state: request.delivery_state, freight_description: request.freight_description } : null } as QuoteRecord
         : await createQuote(user.companyId, user.id, values)
       setQuotes((current) => [created, ...current])
+      setShowingSampleData(false)
       setShowForm(false)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Unable to create quote.')
@@ -66,6 +85,7 @@ export function QuotesPage() {
   const changeStatus = async (quote: QuoteRecord, status: QuoteRecord['status']) => {
     const previous = quote.status
     setQuotes((current) => current.map((item) => item.id === quote.id ? { ...item, status } : item))
+    if (showingSampleData || quote.id.startsWith('quote-')) return
     try {
       if (!user?.demo) await updateQuoteStatus(quote.id, status)
     } catch (caught) {
@@ -75,29 +95,54 @@ export function QuotesPage() {
   }
 
   return (
-    <div className="operations-page">
-      <div className="page-command-row"><div><span className="eyebrow">PRICING CONTROL</span><h2>Quotes</h2><p>Price each shipment clearly and keep approval status connected to the original request.</p></div><button className="primary-button" onClick={() => setShowForm(true)}><Icon name="plus" size={17} /> Create Quote</button></div>
-      {error && <div className="form-error operations-alert">{error}</div>}
-      <section className="panel operations-toolbar"><label className="operations-search"><Icon name="search" size={18} /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search quote, request, customer, or route" /></label><div className="operations-summary"><strong>{filtered.length}</strong><span>quotes</span></div></section>
-      <section className="quote-grid">{filtered.map((quote) => <article className="panel quote-card" key={quote.id}>
-        <div className="quote-card__header"><div><span className="request-number">{quote.quote_number}</span><h3>{quote.load_requests?.requester_company || quote.load_requests?.requester_name || 'Customer quote'}</h3></div><select className={`quote-status quote-status--${quote.status}`} value={quote.status} onChange={(e) => changeStatus(quote, e.target.value as QuoteRecord['status'])}><option value="draft">Draft</option><option value="sent">Sent</option><option value="approved">Approved</option><option value="declined">Declined</option><option value="expired">Expired</option><option value="converted">Converted</option></select></div>
-        <div className="quote-route"><strong>{quote.load_requests?.pickup_city}, {quote.load_requests?.pickup_state}</strong><Icon name="arrow" size={16} /><strong>{quote.load_requests?.delivery_city}, {quote.load_requests?.delivery_state}</strong></div>
-        <p>{quote.load_requests?.freight_description}</p>
-        <dl><div><dt>Base</dt><dd>${quote.base_rate.toLocaleString()}</dd></div><div><dt>Fuel</dt><dd>${quote.fuel_surcharge.toLocaleString()}</dd></div><div><dt>Additional</dt><dd>${(quote.tarping_charge + quote.additional_services).toLocaleString()}</dd></div><div className="quote-total"><dt>Total</dt><dd>${quote.total_amount.toLocaleString()}</dd></div></dl>
-        <div className="quote-card__footer"><span>{quote.payment_terms} · {quote.estimated_mileage ? `${quote.estimated_mileage} mi` : 'Mileage pending'}</span><button className="text-button">Open quote <Icon name="arrow" size={15} /></button></div>
-      </article>)}</section>
+    <div className="pricing-queue-page">
+      <header className="record-page-head">
+        <div><span>COMMERCIAL OPERATIONS</span><h2>Pricing Queue</h2><p>Prepare, send, approve, and convert shipment pricing from one register.</p></div>
+        <button className="record-primary-action" onClick={() => setShowForm(true)}><Icon name="plus" size={16} /> New Quote</button>
+      </header>
 
-      {showForm && <div className="modal-scrim" onMouseDown={() => setShowForm(false)}><section className="modal-card modal-card--wide" onMouseDown={(e) => e.stopPropagation()}><div className="modal-card__header"><div><span className="eyebrow">NEW QUOTE</span><h2>Price a Load Request</h2></div><button className="icon-button" onClick={() => setShowForm(false)}>×</button></div><div className="form-grid form-grid--three">
-        <label className="form-grid__full">Load request<select value={values.loadRequestId} onChange={(e) => setValues({ ...values, loadRequestId: e.target.value })}><option value="">Select a request</option>{requests.map((request) => <option key={request.id} value={request.id}>{request.request_number} · {request.requester_company || request.requester_name} · {request.pickup_city} to {request.delivery_city}</option>)}</select></label>
-        <label>Estimated mileage<input inputMode="decimal" value={values.estimatedMileage} onChange={(e) => setValues({ ...values, estimatedMileage: e.target.value })} /></label>
-        <label>Base rate<input inputMode="decimal" value={values.baseRate} onChange={(e) => setValues({ ...values, baseRate: e.target.value })} /></label>
-        <label>Fuel surcharge<input inputMode="decimal" value={values.fuelSurcharge} onChange={(e) => setValues({ ...values, fuelSurcharge: e.target.value })} /></label>
-        <label>Tarping<input inputMode="decimal" value={values.tarpingCharge} onChange={(e) => setValues({ ...values, tarpingCharge: e.target.value })} /></label>
-        <label>Additional services<input inputMode="decimal" value={values.additionalServices} onChange={(e) => setValues({ ...values, additionalServices: e.target.value })} /></label>
-        <label>Expires<input type="date" value={values.expiresAt} onChange={(e) => setValues({ ...values, expiresAt: e.target.value })} /></label>
-        <label>Payment terms<select value={values.paymentTerms} onChange={(e) => setValues({ ...values, paymentTerms: e.target.value })}><option>Due on receipt</option><option>Net 15</option><option>Net 30</option><option>Net 45</option></select></label>
-        <label className="form-grid__wide">Detention terms<input value={values.detentionTerms} onChange={(e) => setValues({ ...values, detentionTerms: e.target.value })} /></label>
-        <label className="form-grid__full">Notes<textarea value={values.notes} onChange={(e) => setValues({ ...values, notes: e.target.value })} /></label>
+      {error && <div className="record-alert record-alert--error">{error}</div>}
+      {showingSampleData && <div className="sample-data-banner"><Icon name="alert" size={16} /><span><strong>Sample Data — Preview Only</strong> No real quotes exist yet. Changes to these examples remain local.</span></div>}
+
+      <section className="pricing-metric-strip">
+        <div><span>Open pricing</span><strong>{metrics.open}</strong></div>
+        <div><span>Approved</span><strong>{metrics.approved}</strong></div>
+        <div><span>Converted</span><strong>{metrics.converted}</strong></div>
+        <div><span>Active pipeline</span><strong>${metrics.pipeline.toLocaleString()}</strong></div>
+      </section>
+
+      <section className="record-filterbar">
+        <label><Icon name="search" size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search quote, request, customer, or route" /></label>
+        <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as typeof statusFilter)}><option value="all">All statuses</option>{quoteStatuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select>
+        <span>{filtered.length} pricing records</span>
+      </section>
+
+      <section className="pricing-register">
+        <div className="pricing-register__head"><span>Quote</span><span>Customer & freight</span><span>Route</span><span>Commercials</span><span>Expiration</span><span>Status</span></div>
+        {filtered.map((quote) => (
+          <article key={quote.id}>
+            <div><strong>{quote.quote_number}</strong><small>{quote.load_requests?.request_number || 'Direct quote'}</small></div>
+            <div><strong>{quote.load_requests?.requester_company || quote.load_requests?.requester_name || 'Customer quote'}</strong><small>{quote.load_requests?.freight_description}</small></div>
+            <div className="pricing-route"><strong>{quote.load_requests?.pickup_city}, {quote.load_requests?.pickup_state}</strong><Icon name="arrow" size={13} /><strong>{quote.load_requests?.delivery_city}, {quote.load_requests?.delivery_state}</strong><small>{quote.estimated_mileage ? `${quote.estimated_mileage} estimated miles` : 'Mileage pending'}</small></div>
+            <div className="pricing-commercials"><strong>${quote.total_amount.toLocaleString()}</strong><small>${quote.base_rate.toLocaleString()} base · ${quote.fuel_surcharge.toLocaleString()} fuel</small></div>
+            <div><strong>{quote.expires_at ? new Date(quote.expires_at).toLocaleDateString() : 'No expiration'}</strong><small>{quote.payment_terms}</small></div>
+            <div><select className={`quote-status quote-status--${quote.status}`} value={quote.status} onChange={(event) => changeStatus(quote, event.target.value as QuoteRecord['status'])}>{quoteStatuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select></div>
+          </article>
+        ))}
+        {!filtered.length && <div className="record-empty">No pricing records match the current filters.</div>}
+      </section>
+
+      {showForm && <div className="modal-scrim" onMouseDown={() => setShowForm(false)}><section className="modal-card modal-card--wide" onMouseDown={(event) => event.stopPropagation()}><div className="modal-card__header"><div><span className="eyebrow">NEW QUOTE</span><h2>Price a Load Request</h2></div><button className="icon-button" onClick={() => setShowForm(false)}>×</button></div><div className="form-grid form-grid--three">
+        <label className="form-grid__full">Load request<select value={values.loadRequestId} onChange={(event) => setValues({ ...values, loadRequestId: event.target.value })}><option value="">Select a request</option>{requests.map((request) => <option key={request.id} value={request.id}>{request.request_number} · {request.requester_company || request.requester_name} · {request.pickup_city} to {request.delivery_city}</option>)}</select></label>
+        <label>Estimated mileage<input inputMode="decimal" value={values.estimatedMileage} onChange={(event) => setValues({ ...values, estimatedMileage: event.target.value })} /></label>
+        <label>Base rate<input inputMode="decimal" value={values.baseRate} onChange={(event) => setValues({ ...values, baseRate: event.target.value })} /></label>
+        <label>Fuel surcharge<input inputMode="decimal" value={values.fuelSurcharge} onChange={(event) => setValues({ ...values, fuelSurcharge: event.target.value })} /></label>
+        <label>Tarping<input inputMode="decimal" value={values.tarpingCharge} onChange={(event) => setValues({ ...values, tarpingCharge: event.target.value })} /></label>
+        <label>Additional services<input inputMode="decimal" value={values.additionalServices} onChange={(event) => setValues({ ...values, additionalServices: event.target.value })} /></label>
+        <label>Expires<input type="date" value={values.expiresAt} onChange={(event) => setValues({ ...values, expiresAt: event.target.value })} /></label>
+        <label>Payment terms<select value={values.paymentTerms} onChange={(event) => setValues({ ...values, paymentTerms: event.target.value })}><option>Due on receipt</option><option>Net 15</option><option>Net 30</option><option>Net 45</option></select></label>
+        <label className="form-grid__wide">Detention terms<input value={values.detentionTerms} onChange={(event) => setValues({ ...values, detentionTerms: event.target.value })} /></label>
+        <label className="form-grid__full">Notes<textarea value={values.notes} onChange={(event) => setValues({ ...values, notes: event.target.value })} /></label>
       </div><div className="quote-total-preview"><span>Quote total</span><strong>${total.toLocaleString()}</strong></div><div className="modal-card__actions"><button className="secondary-button" onClick={() => setShowForm(false)}>Cancel</button><button className="primary-button" disabled={saving || !values.loadRequestId} onClick={saveQuote}>{saving ? 'Creating...' : 'Create Quote'}</button></div></section></div>}
     </div>
   )
