@@ -1,0 +1,10 @@
+{
+  "name": "Legacy Hotshot Command Center",
+  "short_name": "Legacy",
+  "description": "Operations command center for Legacy Hotshot LLC.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f2f1ed",
+  "theme_color": "#15181c",
+  "icons": []
+}
