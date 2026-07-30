@@ -48,16 +48,59 @@ export type ActiveLoad = {
   customer: string
 }
 
+export type BusinessRelationshipType =
+  | 'customer'
+  | 'broker'
+  | 'shipper'
+  | 'receiver'
+  | 'vendor'
+  | 'repair_shop'
+  | 'fuel_partner'
+  | 'insurance_partner'
+  | 'other'
+
+export type BusinessContact = {
+  id: string
+  customer_id: string
+  full_name: string
+  title: string | null
+  department: string | null
+  email: string | null
+  phone: string | null
+  contact_role: string
+  is_primary: boolean
+  is_active: boolean
+  notes: string | null
+  created_at: string
+}
+
 export type Customer = {
   id: string
   company_name: string
   primary_contact: string | null
   email: string | null
   phone: string | null
+  billing_contact: string | null
+  billing_email: string | null
+  billing_address: string | null
   payment_terms: string
   communication_preference: string
   notes: string | null
+  relationship_types: BusinessRelationshipType[]
+  relationship_status: 'active' | 'inactive' | 'on_hold'
+  preferred_partner: boolean
+  website_url: string | null
+  address_line_1: string | null
+  address_line_2: string | null
+  city: string | null
+  state: string | null
+  postal_code: string | null
+  vendor_category: string | null
+  account_number: string | null
+  last_activity_at: string | null
   created_at: string
+  updated_at?: string
+  business_contacts?: BusinessContact[]
 }
 
 export type LoadStatus =
