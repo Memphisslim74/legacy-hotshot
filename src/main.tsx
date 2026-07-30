@@ -16,6 +16,7 @@ import './legacy-operations.css'
 import './admin-workspace.css'
 import './sample-preview.css'
 import './relationship-directory-v2.css'
+import './account-administration.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
