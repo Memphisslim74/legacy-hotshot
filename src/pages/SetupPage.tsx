@@ -15,18 +15,18 @@ export function SetupPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [companyName, setCompanyName] = useState('Legacy Hotshot LLC')
-  const [ownerName, setOwnerName] = useState(user?.fullName || 'Jared')
+  const [ownerName, setOwnerName] = useState(user?.fullName || 'Jared Guinn')
   const [email, setEmail] = useState(user?.email || '')
   const [phone, setPhone] = useState('')
   const [businessAddress, setBusinessAddress] = useState('')
   const [serviceArea, setServiceArea] = useState('Texas and surrounding states')
   const [mcNumber, setMcNumber] = useState('')
-  const [usdotNumber, setUsdotNumber] = useState('')
+  const [usdotNumber, setUsdotNumber] = useState('4514127')
   const [invoiceTerms, setInvoiceTerms] = useState('Net 30')
   const [detentionPolicy, setDetentionPolicy] = useState('2 hours free, then billed hourly')
   const [communicationPreference, setCommunicationPreference] = useState('email')
-  const [emailSignature, setEmailSignature] = useState('')
-  const [primaryColor, setPrimaryColor] = useState('#47657d')
+  const [emailSignature, setEmailSignature] = useState('Jared Guinn | Legacy Hotshot LLC')
+  const [primaryColor, setPrimaryColor] = useState('#bd1f31')
 
   if (!user) return <Navigate to="/login" replace />
   if (user.setupComplete && !user.demo) return <Navigate to="/" replace />
@@ -73,7 +73,7 @@ export function SetupPage() {
         <BrandMark inverse />
         <div>
           <span className="eyebrow">FIRST-TIME SETUP</span>
-          <h1>Let’s set up Jared’s command center.</h1>
+          <h1>Let’s set up Jared Guinn’s command center.</h1>
           <p>Only the basics are required. Everything else can be completed later in Company Settings.</p>
         </div>
         <div className="setup-progress">
@@ -96,7 +96,7 @@ export function SetupPage() {
               <label>Owner name<input value={ownerName} onChange={(event) => setOwnerName(event.target.value)} required /></label>
               <label>Service area<input value={serviceArea} onChange={(event) => setServiceArea(event.target.value)} /></label>
               <label>MC number <span>Optional</span><input value={mcNumber} onChange={(event) => setMcNumber(event.target.value)} placeholder="MC-000000" /></label>
-              <label>USDOT number <span>Optional</span><input value={usdotNumber} onChange={(event) => setUsdotNumber(event.target.value)} placeholder="0000000" /></label>
+              <label>USDOT number <span>Optional</span><input value={usdotNumber} onChange={(event) => setUsdotNumber(event.target.value)} placeholder="4514127" /></label>
             </div>
           )}
 
@@ -105,7 +105,7 @@ export function SetupPage() {
               <label>Company email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="dispatch@legacyhotshot.com" /></label>
               <label>Company phone<input value={phone} onChange={(event) => setPhone(event.target.value)} placeholder="(555) 555-5555" /></label>
               <label className="form-grid__full">Business address <span>Optional</span><input value={businessAddress} onChange={(event) => setBusinessAddress(event.target.value)} placeholder="Street, city, state, ZIP" /></label>
-              <label className="form-grid__full">Email signature <span>Optional</span><textarea value={emailSignature} onChange={(event) => setEmailSignature(event.target.value)} placeholder="Jared | Legacy Hotshot LLC" /></label>
+              <label className="form-grid__full">Email signature <span>Optional</span><textarea value={emailSignature} onChange={(event) => setEmailSignature(event.target.value)} placeholder="Jared Guinn | Legacy Hotshot LLC" /></label>
             </div>
           )}
 
@@ -121,10 +121,10 @@ export function SetupPage() {
           {step === 3 && (
             <div className="form-grid">
               <label>Primary brand color<input type="color" value={primaryColor} onChange={(event) => setPrimaryColor(event.target.value)} /></label>
-              <label>Company logo <span>Stage 2</span><input type="file" accept="image/png,image/jpeg,image/webp" disabled /></label>
+              <label>Company logo <span>Installed</span><input type="text" value="Official Legacy Hotshot logo" disabled /></label>
               <div className="form-grid__full brand-preview" style={{ '--preview-accent': primaryColor } as CSSProperties}>
                 <BrandMark />
-                <span>The selected color is saved now. Secure logo upload will activate when the private branding storage bucket is added.</span>
+                <span>The official Legacy Hotshot logo is installed. The selected accent color will be saved with company settings.</span>
               </div>
             </div>
           )}
