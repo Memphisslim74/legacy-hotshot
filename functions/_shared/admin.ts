@@ -5,6 +5,9 @@ export interface AdminEnv {
   SUPABASE_SECRET_KEY?: string
   SUPABASE_SERVICE_ROLE_KEY?: string
   APP_URL?: string
+  RESEND_API_KEY?: string
+  RESEND_FROM_EMAIL?: string
+  RESEND_FROM_NAME?: string
 }
 
 type ProfileRow = {
