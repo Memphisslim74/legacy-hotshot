@@ -10,6 +10,22 @@ const statusLabels: Record<LoadStatus, string> = {
   request_received: 'Request Received', reviewing: 'Reviewing', quoted: 'Quoted', booked: 'Booked', driver_assigned: 'Driver Assigned', en_route_to_pickup: 'En Route to Pickup', arrived_at_pickup: 'Arrived at Pickup', loaded: 'Loaded', in_transit: 'In Transit', delayed: 'Delayed', arrived_at_delivery: 'Arrived at Delivery', delivered: 'Delivered', pod_received: 'POD Received', invoice_sent: 'Invoice Sent', paid: 'Paid', cancelled: 'Cancelled',
 }
 
+function formatAddress(address: string, city: string, state: string) {
+  return [address, city, state].filter(Boolean).join(', ')
+}
+
+function googleDirections(destination: string, origin?: string) {
+  const params = new URLSearchParams({ api: '1', destination, travelmode: 'driving' })
+  if (origin) params.set('origin', origin)
+  return `https://www.google.com/maps/dir/?${params.toString()}`
+}
+
+function appleDirections(destination: string, origin?: string) {
+  const params = new URLSearchParams({ daddr: destination, dirflg: 'd' })
+  if (origin) params.set('saddr', origin)
+  return `https://maps.apple.com/?${params.toString()}`
+}
+
 export function LoadDetailPage() {
   const { id } = useParams()
   const { user } = useAuth()
@@ -71,12 +87,16 @@ export function LoadDetailPage() {
   const profit = Number(load.customer_rate || 0) - expenses
   const totalMiles = Number(load.loaded_miles || 0) + Number(load.deadhead_miles || 0)
   const rpm = totalMiles ? Number(load.customer_rate || 0) / totalMiles : 0
+  const pickupAddress = formatAddress(load.pickup_address, load.pickup_city, load.pickup_state)
+  const deliveryAddress = formatAddress(load.delivery_address, load.delivery_city, load.delivery_state)
 
   return (
     <div className="operations-page load-detail-page">
       <div className="page-command-row">
         <div><button className="back-link" onClick={() => navigate('/loads')}>← Loads</button><span className="eyebrow">{load.customers?.company_name || 'LEGACY LOAD'}</span><h2>{load.load_number}</h2><p>{load.freight_description}</p></div>
         <div className="load-detail-actions">
+          <a className="secondary-button" href={googleDirections(deliveryAddress, pickupAddress)} target="_blank" rel="noreferrer"><Icon name="route" size={17} /> Google Route</a>
+          <a className="secondary-button" href={appleDirections(deliveryAddress, pickupAddress)} target="_blank" rel="noreferrer"><Icon name="route" size={17} /> Apple Route</a>
           <button className="secondary-button" onClick={copyTrackerLink}><Icon name={trackerCopied ? 'check' : 'route'} size={17} /> {trackerCopied ? 'Tracker Link Copied' : 'Copy Tracker Link'}</button>
           <a className="secondary-button" href={trackerPath} target="_blank" rel="noreferrer"><Icon name="arrow" size={17} /> Preview Tracker</a>
           <button className="secondary-button" onClick={() => navigate('/communications')}><Icon name="messages" size={17} /> Send Update</button>
@@ -93,9 +113,9 @@ export function LoadDetailPage() {
 
       <section className="load-detail-grid">
         <article className="panel load-route-panel"><div className="panel__header panel__header--bordered"><div><span className="panel__eyebrow">SHIPMENT ROUTE</span><h3>Pickup & Delivery</h3></div></div><div className="load-route-detail">
-          <div className="load-route-stop"><span>A</span><div><small>PICKUP</small><h3>{load.pickup_company || `${load.pickup_city} pickup`}</h3><p>{load.pickup_address}<br />{load.pickup_city}, {load.pickup_state}</p><strong>{load.pickup_at ? new Date(load.pickup_at).toLocaleString() : 'Appointment not set'}</strong></div></div>
+          <div className="load-route-stop"><span>A</span><div><small>PICKUP</small><h3>{load.pickup_company || `${load.pickup_city} pickup`}</h3><p>{load.pickup_address}<br />{load.pickup_city}, {load.pickup_state}</p><strong>{load.pickup_at ? new Date(load.pickup_at).toLocaleString() : 'Appointment not set'}</strong><div className="map-direction-actions"><a href={googleDirections(pickupAddress)} target="_blank" rel="noreferrer">Google Maps</a><a href={appleDirections(pickupAddress)} target="_blank" rel="noreferrer">Apple Maps</a></div></div></div>
           <div className="load-route-connector" />
-          <div className="load-route-stop load-route-stop--delivery"><span>B</span><div><small>DELIVERY</small><h3>{load.delivery_company || `${load.delivery_city} delivery`}</h3><p>{load.delivery_address}<br />{load.delivery_city}, {load.delivery_state}</p><strong>{load.delivery_at ? new Date(load.delivery_at).toLocaleString() : 'Appointment not set'}</strong></div></div>
+          <div className="load-route-stop load-route-stop--delivery"><span>B</span><div><small>DELIVERY</small><h3>{load.delivery_company || `${load.delivery_city} delivery`}</h3><p>{load.delivery_address}<br />{load.delivery_city}, {load.delivery_state}</p><strong>{load.delivery_at ? new Date(load.delivery_at).toLocaleString() : 'Appointment not set'}</strong><div className="map-direction-actions"><a href={googleDirections(deliveryAddress)} target="_blank" rel="noreferrer">Google Maps</a><a href={appleDirections(deliveryAddress)} target="_blank" rel="noreferrer">Apple Maps</a></div></div></div>
         </div></article>
 
         <article className="panel profitability-panel"><div className="panel__header panel__header--bordered"><div><span className="panel__eyebrow">LOAD ECONOMICS</span><h3>Profitability</h3></div></div><dl><div><dt>Customer rate</dt><dd>${Number(load.customer_rate || 0).toLocaleString()}</dd></div><div><dt>Driver pay</dt><dd>−${Number(load.driver_pay || 0).toLocaleString()}</dd></div><div><dt>Estimated fuel</dt><dd>−${Number(load.estimated_fuel || 0).toLocaleString()}</dd></div><div><dt>Other expenses</dt><dd>−${Number(load.additional_expenses || 0).toLocaleString()}</dd></div><div className="profit-total"><dt>Estimated profit</dt><dd>${profit.toLocaleString()}</dd></div></dl><div className="profit-metrics"><div><strong>{totalMiles.toLocaleString()}</strong><span>Total miles</span></div><div><strong>${rpm.toFixed(2)}</strong><span>Revenue / mile</span></div><div><strong>{load.customer_rate ? `${Math.round((profit / load.customer_rate) * 100)}%` : '0%'}</strong><span>Margin</span></div></div></article>
