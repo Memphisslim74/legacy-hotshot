@@ -15,7 +15,7 @@ import { PublicLoadRequestPage } from './pages/PublicLoadRequestPage'
 import { PublicLoadTrackerPage } from './pages/PublicLoadTrackerPage'
 import { CompanySettingsPage } from './pages/CompanySettingsPage'
 import { DriverPortalPage } from './pages/DriverPortalPage'
-import { DriverLoadPage } from './pages/DriverLoadPage'
+import { DriverLoadWorkspacePage } from './pages/DriverLoadWorkspacePage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { AccountAdministrationPage } from './pages/AccountAdministrationPage'
 
@@ -55,7 +55,7 @@ export default function App() {
       <Route path="/track/:token" element={<PublicLoadTrackerPage />} />
       <Route element={<ProtectedLayout />}>
         <Route path="driver" element={<DriverPortalPage />} />
-        <Route path="driver/loads/:id" element={<DriverLoadPage />} />
+        <Route path="driver/loads/:id" element={<DriverLoadWorkspacePage />} />
         <Route path="documents" element={<DocumentsPage />} />
         <Route element={<OfficeOnly />}>
           <Route index element={<DashboardPage />} />
