@@ -73,6 +73,7 @@ export function LoadsPage() {
   const [status, setStatus] = useState('all')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showingSampleData, setShowingSampleData] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
@@ -80,10 +81,13 @@ export function LoadsPage() {
         if (!user?.companyId || user.demo) {
           setLoads(demoLoads)
           setRequests(demoRequests)
+          setShowingSampleData(true)
         } else {
           const [loadRows, requestRows] = await Promise.all([listLoads(user.companyId), listLoadRequests(user.companyId)])
-          setLoads(loadRows)
-          setRequests(requestRows)
+          const noOperatingData = loadRows.length === 0 && requestRows.length === 0
+          setLoads(noOperatingData ? demoLoads : loadRows)
+          setRequests(noOperatingData ? demoRequests : requestRows)
+          setShowingSampleData(noOperatingData)
         }
       } catch (caught) {
         setError(caught instanceof Error ? caught.message : 'Unable to load operations data.')
@@ -117,6 +121,7 @@ export function LoadsPage() {
     if (!user) return
     const previous = load.status
     setLoads((current) => current.map((item) => item.id === load.id ? { ...item, status: next } : item))
+    if (showingSampleData) return
     try {
       if (user.companyId && !user.demo) await updateLoadStatus(user.companyId, user.id, load.id, next)
     } catch (caught) {
@@ -137,6 +142,7 @@ export function LoadsPage() {
       </section>
 
       {error && <div className="load-register-alert">{error}</div>}
+      {showingSampleData && <div className="sample-data-banner"><Icon name="alert" size={16} /><span><strong>Sample Data — Preview Only</strong> No real loads or requests exist yet. These records are display-only and are not stored in Supabase.</span></div>}
 
       <section className="load-status-strip" aria-label="Load operating summary">
         <button className={tab === 'loads' && status === 'all' ? 'active' : ''} onClick={() => { setTab('loads'); setStatus('all') }}><span>All loads</span><strong>{summary.all}</strong></button>
