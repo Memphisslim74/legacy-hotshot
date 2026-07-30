@@ -113,7 +113,7 @@ begin
     'company_setup_completed',
     'company',
     target_company_id::text,
-    jsonb_build_object('fields_saved', jsonb_object_keys(requested_settings))
+    jsonb_build_object('setup_saved', true)
   );
 
   return target_company_id;
