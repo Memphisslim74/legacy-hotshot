@@ -26,7 +26,7 @@ export function SetupPage() {
   const [detentionPolicy, setDetentionPolicy] = useState('2 hours free, then billed hourly')
   const [communicationPreference, setCommunicationPreference] = useState('email')
   const [emailSignature, setEmailSignature] = useState('')
-  const [primaryColor, setPrimaryColor] = useState('#b98642')
+  const [primaryColor, setPrimaryColor] = useState('#47657d')
 
   if (!user) return <Navigate to="/login" replace />
   if (user.setupComplete && !user.demo) return <Navigate to="/" replace />
