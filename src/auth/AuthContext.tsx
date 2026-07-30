@@ -19,7 +19,7 @@ const demoStorageKey = 'legacy-hotshot-demo-user'
 
 const demoUser: AppUser = {
   id: 'demo-owner',
-  email: 'jared@legacyhotshot.com',
+  email: 'legacyhsoffice@gmail.com',
   fullName: 'Jared Guinn',
   role: 'owner',
   companyId: 'demo-company',
@@ -72,9 +72,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         }
 
         const { data } = await supabase.auth.getSession()
-        if (data.session?.user && active) {
-          await loadProfile(data.session.user)
-        }
+        if (data.session?.user && active) await loadProfile(data.session.user)
       } catch (error) {
         console.error('Unable to initialize authentication', error)
       } finally {
@@ -104,9 +102,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, [loadProfile])
 
   const signIn = useCallback(async (email: string, password: string) => {
-    if (!supabase) {
-      throw new Error('Supabase is not connected. Use Preview Demo or add environment variables.')
-    }
+    if (!supabase) throw new Error('Supabase is not connected. Use Preview Demo or add environment variables.')
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
   }, [])
@@ -127,24 +123,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
     if (!user) return
     if (!supabase || user.demo) {
       localStorage.setItem('legacy-hotshot-demo-company', JSON.stringify(settings))
-      setUser((current) => (current ? {
-        ...current,
-        fullName: settings.ownerName || current.fullName,
-        setupComplete: true,
-      } : current))
+      setUser((current) => current ? { ...current, setupComplete: true } : current)
       return
     }
 
-    const { data, error } = await supabase.rpc('complete_owner_setup', {
-      requested_settings: settings,
-    })
+    const { data, error } = await supabase.rpc('complete_owner_setup', { requested_settings: settings })
     if (error) throw error
-    setUser((current) => (current ? {
+    setUser((current) => current ? {
       ...current,
-      fullName: settings.ownerName || current.fullName,
       companyId: typeof data === 'string' ? data : current.companyId,
       setupComplete: true,
-    } : current))
+    } : current)
   }, [user])
 
   const value = useMemo<AuthContextValue>(() => ({
