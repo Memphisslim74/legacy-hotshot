@@ -20,12 +20,13 @@ const relationshipLabels: Record<BusinessRelationshipType, string> = {
 }
 
 const relationshipOptions = Object.keys(relationshipLabels) as BusinessRelationshipType[]
+const defaultRelationshipType: BusinessRelationshipType = 'customer'
 
 type DirectoryFilter = 'all' | 'preferred' | 'on_hold' | BusinessRelationshipType
 
 const emptyValues: BusinessRelationshipInput = {
   companyName: '',
-  relationshipTypes: ['customer'],
+  relationshipTypes: [defaultRelationshipType],
   relationshipStatus: 'active',
   preferredPartner: false,
   primaryContact: '',
@@ -158,7 +159,7 @@ function locationLabel(customer: Customer) {
 function valuesFromCustomer(customer: Customer): BusinessRelationshipInput {
   return {
     companyName: customer.company_name,
-    relationshipTypes: customer.relationship_types?.length ? customer.relationship_types : ['customer'],
+    relationshipTypes: customer.relationship_types?.length ? customer.relationship_types : [defaultRelationshipType],
     relationshipStatus: customer.relationship_status || 'active',
     preferredPartner: Boolean(customer.preferred_partner),
     primaryContact: customer.primary_contact || '',
@@ -377,7 +378,7 @@ export function CustomersPage() {
             </div>
 
             <div className="relationship-role-list">
-              {(customer.relationship_types?.length ? customer.relationship_types : ['customer']).map((type) => <span key={type}>{relationshipLabels[type]}</span>)}
+              {(customer.relationship_types?.length ? customer.relationship_types : [defaultRelationshipType]).map((type) => <span key={type}>{relationshipLabels[type]}</span>)}
             </div>
 
             <div className="relationship-card__contact">
@@ -388,7 +389,7 @@ export function CustomersPage() {
             <div className="relationship-card__details">
               <div><span>Terms</span><strong>{customer.payment_terms}</strong></div>
               <div><span>Updates</span><strong>{customer.communication_preference.replace('_', ' + ')}</strong></div>
-              <div><span>Category</span><strong>{customer.vendor_category || relationshipLabels[customer.relationship_types?.[0] || 'customer']}</strong></div>
+              <div><span>Category</span><strong>{customer.vendor_category || relationshipLabels[customer.relationship_types?.[0] || defaultRelationshipType]}</strong></div>
             </div>
 
             {customer.notes && <p className="relationship-card__notes">{customer.notes}</p>}
