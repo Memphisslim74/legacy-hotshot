@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 560" role="img" aria-labelledby="title desc">
+  <title id="title">Legacy Hotshot, LLC</title>
+  <desc id="desc">Winged shield logo for Legacy Hotshot LLC with USDOT 4514127</desc>
+  <defs>
+    <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.48" stop-color="#c7c9cc"/>
+      <stop offset="1" stop-color="#777b80"/>
+    </linearGradient>
+    <linearGradient id="charcoal" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a3d42"/>
+      <stop offset="1" stop-color="#121417"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#shadow)">
+    <path d="M202 46H558L586 86 555 412 380 508 205 412 174 86Z" fill="url(#charcoal)" stroke="#101215" stroke-width="18"/>
+    <path d="M211 62H549L568 92 538 398 380 485 222 398 192 92Z" fill="none" stroke="url(#silver)" stroke-width="10"/>
+    <path d="M229 82H531L547 104 520 382 380 459 240 382 213 104Z" fill="none" stroke="#bd1f31" stroke-width="12"/>
+
+    <g stroke-linejoin="round">
+      <path d="M348 126 246 64 58 27 192 124 343 168Z" fill="#14171a" stroke="url(#silver)" stroke-width="9"/>
+      <path d="M342 155 211 102 45 71 183 160 338 194Z" fill="#bd1f31" stroke="#181a1e" stroke-width="7"/>
+      <path d="M338 184 187 139 58 119 180 194 337 221Z" fill="url(#silver)" stroke="#121417" stroke-width="7"/>
+      <path d="M412 126 514 64 702 27 568 124 417 168Z" fill="#14171a" stroke="url(#silver)" stroke-width="9"/>
+      <path d="M418 155 549 102 715 71 577 160 422 194Z" fill="#bd1f31" stroke="#181a1e" stroke-width="7"/>
+      <path d="M422 184 573 139 702 119 580 194 423 221Z" fill="url(#silver)" stroke="#121417" stroke-width="7"/>
+    </g>
+
+    <circle cx="380" cy="153" r="86" fill="#16191d" stroke="#111317" stroke-width="15"/>
+    <circle cx="380" cy="153" r="72" fill="#2a2d31" stroke="#bd1f31" stroke-width="9"/>
+    <circle cx="380" cy="153" r="61" fill="none" stroke="url(#silver)" stroke-width="7"/>
+    <text x="380" y="194" text-anchor="middle" font-family="Georgia, Times New Roman, serif" font-size="118" font-weight="700" fill="url(#silver)" stroke="#08090a" stroke-width="5" paint-order="stroke">L</text>
+
+    <path d="M69 231H691L722 260 691 289H69L38 260Z" fill="#111317" stroke="#08090a" stroke-width="12"/>
+    <path d="M60 222H700L717 239H43Z" fill="#bd1f31" stroke="#6d0d18" stroke-width="5"/>
+    <path d="M43 281H717L700 298H60Z" fill="#bd1f31" stroke="#6d0d18" stroke-width="5"/>
+    <text x="380" y="278" text-anchor="middle" font-family="Arial Narrow, Impact, sans-serif" font-size="61" font-stretch="condensed" font-weight="900" letter-spacing="1.2" fill="#ffffff" stroke="#000000" stroke-width="4" paint-order="stroke">LEGACY HOTSHOT, LLC</text>
+
+    <path d="M380 340 393 374 430 376 401 399 410 435 380 414 350 435 359 399 330 376 367 374Z" fill="#ffffff" stroke="#a8aaad" stroke-width="5"/>
+  </g>
+
+  <g transform="translate(145 514)">
+    <rect x="0" y="-38" width="470" height="58" rx="8" fill="#101215" stroke="#55595f" stroke-width="4"/>
+    <text x="235" y="4" text-anchor="middle" font-family="Arial Narrow, Impact, sans-serif" font-size="43" font-weight="900" letter-spacing="2" fill="#ffffff">USDOT 4514127</text>
+  </g>
+</svg>
