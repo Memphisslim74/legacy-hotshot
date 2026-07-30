@@ -14,6 +14,7 @@ import './relationships.css'
 import './tracker.css'
 import './legacy-operations.css'
 import './admin-workspace.css'
+import './sample-preview.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
