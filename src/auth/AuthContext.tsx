@@ -20,7 +20,7 @@ const demoStorageKey = 'legacy-hotshot-demo-user'
 const demoUser: AppUser = {
   id: 'demo-owner',
   email: 'jared@legacyhotshot.com',
-  fullName: 'Jared',
+  fullName: 'Jared Guinn',
   role: 'owner',
   companyId: 'demo-company',
   setupComplete: true,
