@@ -3,6 +3,7 @@ name: Validate Legacy Command Center
 on:
   push:
     branches:
+      - main
       - develop/stage-1-foundation
   pull_request:
     branches:
