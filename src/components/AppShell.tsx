@@ -32,6 +32,10 @@ const businessNav: NavItem[] = [
   { label: 'Company Settings', href: '/settings', icon: 'settings' },
 ]
 
+const ownerNav: NavItem[] = [
+  { label: 'User Management', href: '/users', icon: 'customers' },
+]
+
 const pageTitles: Record<string, { eyebrow: string; title: string }> = {
   '/': { eyebrow: 'Legacy Hotshot Operations', title: 'Command Center' },
   '/loads': { eyebrow: 'Operations', title: 'Loads' },
@@ -47,6 +51,7 @@ const pageTitles: Record<string, { eyebrow: string; title: string }> = {
   '/invoices': { eyebrow: 'Financials', title: 'Invoices' },
   '/reports': { eyebrow: 'Performance', title: 'Reports' },
   '/settings': { eyebrow: 'Administration', title: 'Company Settings' },
+  '/users': { eyebrow: 'Administration', title: 'User Management' },
 }
 
 function SidebarLink({ item, closeMenu }: { item: NavItem; closeMenu: () => void }) {
@@ -76,6 +81,7 @@ export function AppShell({ children }: PropsWithChildren) {
         <nav className="sidebar__nav" aria-label="Primary navigation">
           <div className="sidebar__section"><p className="sidebar__label">{isDriver ? 'DRIVER TOOLS' : 'OPERATIONS'}</p>{mainNav.map((item) => <SidebarLink key={item.href} item={item} closeMenu={() => setMenuOpen(false)} />)}</div>
           {!isDriver && <div className="sidebar__section"><p className="sidebar__label">BUSINESS</p>{businessNav.map((item) => <SidebarLink key={item.href} item={item} closeMenu={() => setMenuOpen(false)} />)}</div>}
+          {user?.role === 'owner' && <div className="sidebar__section"><p className="sidebar__label">OWNER</p>{ownerNav.map((item) => <SidebarLink key={item.href} item={item} closeMenu={() => setMenuOpen(false)} />)}</div>}
         </nav>
         <div className="sidebar__profile"><div className="avatar">{accountName.charAt(0).toUpperCase()}</div><div><strong>{accountName}</strong><span>{user?.role === 'owner' ? 'Owner & Administrator' : user?.role}</span></div><button className="icon-button" onClick={handleSignOut} aria-label="Sign out"><Icon name="logout" size={18} /></button></div>
       </aside>
