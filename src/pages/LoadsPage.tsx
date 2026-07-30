@@ -163,7 +163,7 @@ export function LoadsPage() {
                   <td><strong>{load.customers?.company_name || load.pickup_company || 'Unassigned customer'}</strong><span>{load.pickup_company}</span></td>
                   <td className="shipment-register__route"><strong>{load.pickup_city}, {load.pickup_state}</strong><i /><span>{load.delivery_city}, {load.delivery_state}</span></td>
                   <td><strong>{load.pickup_at ? new Date(load.pickup_at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'Not scheduled'}</strong><span>{load.current_eta ? `ETA ${new Date(load.current_eta).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : 'No live ETA'}</span></td>
-                  <td><strong>{load.driver_id ? 'Assigned driver' : 'Unassigned'}</strong><span>{load.equipment_requirements || 'Equipment pending'}</span></td>
+                  <td><strong>{load.assigned_driver?.full_name || (load.assigned_driver_id ? 'Assigned driver' : 'Unassigned')}</strong><span>{load.equipment_requirements || 'Equipment pending'}</span></td>
                   <td><select className={`status-select status-select--${load.status}`} value={load.status} onChange={(event) => changeStatus(load, event.target.value as LoadStatus)}>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></td>
                   <td><strong>${Number(load.customer_rate || 0).toLocaleString()}</strong><span>{Number(load.loaded_miles || 0).toLocaleString()} loaded mi</span></td>
                   <td><button onClick={() => navigate(`/loads/${load.id}`)} aria-label={`Open ${load.load_number}`}><Icon name="arrow" size={16} /></button></td>
