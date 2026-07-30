@@ -12,7 +12,7 @@ const officeMainNav: NavItem[] = [
   { label: 'Loads', href: '/loads', icon: 'loads' },
   { label: 'New Load', href: '/loads/new', icon: 'plus' },
   { label: 'Quotes', href: '/quotes', icon: 'invoices' },
-  { label: 'Customers', href: '/customers', icon: 'customers' },
+  { label: 'Clients & Vendors', href: '/customers', icon: 'customers' },
   { label: 'Driver Portal', href: '/driver', icon: 'drivers' },
   { label: 'Drivers', href: '/drivers', icon: 'drivers' },
   { label: 'Vehicles', href: '/vehicles', icon: 'vehicles' },
@@ -41,7 +41,7 @@ const pageTitles: Record<string, { eyebrow: string; title: string }> = {
   '/loads': { eyebrow: 'Operations', title: 'Loads' },
   '/loads/new': { eyebrow: 'Operations', title: 'New Load' },
   '/quotes': { eyebrow: 'Pricing', title: 'Quotes' },
-  '/customers': { eyebrow: 'Relationships', title: 'Customers' },
+  '/customers': { eyebrow: 'Relationships', title: 'Clients & Vendors' },
   '/driver': { eyebrow: 'Mobile Operations', title: 'Driver Portal' },
   '/drivers': { eyebrow: 'Legacy Driver Network', title: 'Drivers' },
   '/vehicles': { eyebrow: 'Fleet', title: 'Vehicles & Trailers' },
@@ -89,7 +89,7 @@ export function AppShell({ children }: PropsWithChildren) {
       {menuOpen && <button className="sidebar-scrim" onClick={() => setMenuOpen(false)} aria-label="Close menu" />}
 
       <main className="main-area">
-        <header className="topbar"><div className="topbar__title"><button className="icon-button mobile-menu" onClick={() => setMenuOpen(true)} aria-label="Open navigation"><Icon name="menu" /></button><div><span>{page.eyebrow}</span><h1>{page.title}</h1></div></div><div className="topbar__actions">{!isDriver && <label className="global-search"><Icon name="search" size={18} /><input placeholder="Search loads, customers, quotes..." aria-label="Global search" /><kbd>⌘ K</kbd></label>}<button className="icon-button notification-button" aria-label="Notifications"><Icon name="bell" /><span>4</span></button>{!isDriver && <button className="primary-button topbar__new-load" onClick={() => navigate('/loads/new')}><Icon name="plus" size={17} /> New Load</button>}</div></header>
+        <header className="topbar"><div className="topbar__title"><button className="icon-button mobile-menu" onClick={() => setMenuOpen(true)} aria-label="Open navigation"><Icon name="menu" /></button><div><span>{page.eyebrow}</span><h1>{page.title}</h1></div></div><div className="topbar__actions">{!isDriver && <label className="global-search"><Icon name="search" size={18} /><input placeholder="Search loads, businesses, quotes..." aria-label="Global search" /><kbd>⌘ K</kbd></label>}<button className="icon-button notification-button" aria-label="Notifications"><Icon name="bell" /><span>4</span></button>{!isDriver && <button className="primary-button topbar__new-load" onClick={() => navigate('/loads/new')}><Icon name="plus" size={17} /> New Load</button>}</div></header>
         {user?.demo && <div className="demo-banner"><strong>Demo Preview</strong><span>You are viewing realistic sample operations. Connect Supabase and run all migrations to activate live data.</span></div>}
         <div className="page-content">{children}</div>
       </main>
