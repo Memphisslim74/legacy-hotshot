@@ -10,6 +10,22 @@ export type AppUser = {
   demo?: boolean
 }
 
+export type CompanySetupInput = {
+  companyName: string
+  ownerName: string
+  companyEmail: string
+  companyPhone: string
+  businessAddress: string
+  serviceArea: string
+  mcNumber: string
+  usdotNumber: string
+  invoiceTerms: string
+  detentionPolicy: string
+  communicationPreference: string
+  emailSignature: string
+  primaryColor: string
+}
+
 export type AttentionItem = {
   id: string
   severity: 'critical' | 'warning' | 'info'
