@@ -7,6 +7,7 @@ import './styles.css'
 import './brand.css'
 import './stage2.css'
 import './settings.css'
+import './stage3.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
