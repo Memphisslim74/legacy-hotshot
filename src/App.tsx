@@ -12,6 +12,7 @@ import { CustomersPage } from './pages/CustomersPage'
 import { DocumentsPage } from './pages/DocumentsPage'
 import { QuotesPage } from './pages/QuotesPage'
 import { PublicLoadRequestPage } from './pages/PublicLoadRequestPage'
+import { CompanySettingsPage } from './pages/CompanySettingsPage'
 
 function LoadingScreen() {
   return <div className="loading-screen"><div className="loading-mark">L</div><span>Loading Command Center...</span></div>
@@ -46,7 +47,7 @@ export default function App() {
         <Route path="expenses" element={<PlaceholderPage />} />
         <Route path="invoices" element={<PlaceholderPage />} />
         <Route path="reports" element={<PlaceholderPage />} />
-        <Route path="settings" element={<PlaceholderPage />} />
+        <Route path="settings" element={<CompanySettingsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
