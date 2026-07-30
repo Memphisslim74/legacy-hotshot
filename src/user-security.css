@@ -1,0 +1,83 @@
+.user-security-section {
+  display: grid;
+  gap: 16px;
+  margin: 20px;
+  padding: 18px;
+  background: #f7f7f4;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.user-security-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.user-security-heading h4 {
+  margin: 5px 0 0;
+  color: var(--ink);
+  font-family: "Barlow Condensed", Impact, sans-serif;
+  font-size: 1.45rem;
+  text-transform: uppercase;
+}
+
+.user-password-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.user-password-grid label {
+  display: grid;
+  gap: 8px;
+  color: var(--ink-soft);
+  font-size: .78rem;
+  font-weight: 800;
+}
+
+.user-password-grid input {
+  width: 100%;
+  min-height: 46px;
+  padding: 11px 13px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid #cfd2cc;
+  border-radius: 8px;
+  outline: none;
+}
+
+.user-password-grid input:focus {
+  border-color: var(--accent-dark);
+  box-shadow: 0 0 0 3px rgba(189, 31, 49, .12);
+}
+
+.user-security-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.user-security-section .user-reset-note {
+  margin: 0;
+}
+
+@media (max-width: 700px) {
+  .user-security-heading {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .user-password-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .user-security-actions {
+    display: grid;
+  }
+
+  .user-security-actions button {
+    width: 100%;
+  }
+}

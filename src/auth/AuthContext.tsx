@@ -32,6 +32,7 @@ type ProfileRow = {
   role: UserRole
   company_id: string | null
   setup_complete: boolean | null
+  is_active: boolean
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
@@ -44,11 +45,15 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
     const { data, error } = await supabase
       .from('profiles')
-      .select('full_name, role, company_id, setup_complete')
+      .select('full_name, role, company_id, setup_complete, is_active')
       .eq('id', authUser.id)
       .single<ProfileRow>()
 
     if (error) throw error
+    if (!data.is_active) {
+      await supabase.auth.signOut()
+      throw new Error('This account has been deactivated. Contact a Legacy Hotshot owner.')
+    }
 
     setUser({
       id: authUser.id,
@@ -103,8 +108,23 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const signIn = useCallback(async (email: string, password: string) => {
     if (!supabase) throw new Error('Supabase is not connected. Use Preview Demo or add environment variables.')
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
+
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('is_active')
+      .eq('id', data.user.id)
+      .single<{ is_active: boolean }>()
+
+    if (profileError) {
+      await supabase.auth.signOut()
+      throw new Error('This account does not have a valid Legacy Hotshot profile.')
+    }
+    if (!profile.is_active) {
+      await supabase.auth.signOut()
+      throw new Error('This account has been deactivated. Contact a Legacy Hotshot owner.')
+    }
   }, [])
 
   const signOut = useCallback(async () => {

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { Icon } from '../components/Icon'
+import { demoDriverLoad } from '../data/driverDemo'
 import { listLoads, updateLoadStatus } from '../lib/operations'
 import type { LoadRecord, LoadStatus } from '../types'
 
@@ -21,7 +22,7 @@ export function LoadDetailPage() {
     const loadData = async () => {
       try {
         if (!user?.companyId || user.demo) {
-          setLoad({ id: id || 'demo', load_number: 'LH-1028', customer_id: 'demo-customer-1', status: 'in_transit', pickup_company: 'Titan Industrial', pickup_address: '4100 Railhead Rd', pickup_city: 'Fort Worth', pickup_state: 'TX', pickup_at: new Date().toISOString(), delivery_company: 'Permian Equipment', delivery_address: '2200 Industrial Ave', delivery_city: 'Midland', delivery_state: 'TX', delivery_at: new Date(Date.now()+86400000).toISOString(), freight_description: 'Fabricated steel assembly', estimated_weight: 12800, customer_rate: 2850, driver_pay: 0, estimated_fuel: 420, additional_expenses: 85, loaded_miles: 318, deadhead_miles: 22, current_eta: new Date(Date.now()+7200000).toISOString(), tracking_token: 'demo-track-1', created_at: new Date().toISOString(), customers: { company_name: 'Titan Industrial' } })
+          setLoad({ ...demoDriverLoad, id: id || demoDriverLoad.id })
         } else {
           const rows = await listLoads(user.companyId)
           setLoad(rows.find((item) => item.id === id) || null)

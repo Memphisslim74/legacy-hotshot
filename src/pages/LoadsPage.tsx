@@ -2,12 +2,55 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { Icon } from '../components/Icon'
+import { demoDriverLoad } from '../data/driverDemo'
 import { listLoadRequests, listLoads, updateLoadStatus } from '../lib/operations'
 import type { LoadRecord, LoadRequestRecord, LoadStatus } from '../types'
 
 const demoLoads: LoadRecord[] = [
-  { id: 'load-1', load_number: 'LH-1028', customer_id: 'demo-customer-1', status: 'in_transit', pickup_company: 'Titan Industrial', pickup_address: '4100 Railhead Rd', pickup_city: 'Fort Worth', pickup_state: 'TX', pickup_at: new Date().toISOString(), delivery_company: 'Permian Equipment', delivery_address: '2200 Industrial Ave', delivery_city: 'Midland', delivery_state: 'TX', delivery_at: new Date(Date.now()+86400000).toISOString(), freight_description: 'Fabricated steel assembly', estimated_weight: 12800, customer_rate: 2850, driver_pay: 0, estimated_fuel: 420, additional_expenses: 0, loaded_miles: 318, deadhead_miles: 22, current_eta: new Date(Date.now()+7200000).toISOString(), tracking_token: 'demo-track-1', created_at: new Date().toISOString(), customers: { company_name: 'Titan Industrial' } },
-  { id: 'load-2', load_number: 'LH-1029', customer_id: 'demo-customer-2', status: 'booked', pickup_company: 'High Plains Fabrication', pickup_address: '1500 Commerce Dr', pickup_city: 'Abilene', pickup_state: 'TX', pickup_at: new Date(Date.now()+172800000).toISOString(), delivery_company: 'Frontier Site Services', delivery_address: '880 County Road 12', delivery_city: 'Odessa', delivery_state: 'TX', delivery_at: new Date(Date.now()+259200000).toISOString(), freight_description: 'Skid-mounted pump equipment', estimated_weight: 9400, customer_rate: 2100, driver_pay: 0, estimated_fuel: 310, additional_expenses: 0, loaded_miles: 265, deadhead_miles: 44, current_eta: null, tracking_token: 'demo-track-2', created_at: new Date().toISOString(), customers: { company_name: 'High Plains Fabrication' } },
+  { ...demoDriverLoad, id: 'load-1', load_number: 'LH-1028' },
+  {
+    ...demoDriverLoad,
+    id: 'load-2',
+    load_number: 'LH-1029',
+    customer_id: 'demo-customer-2',
+    status: 'booked',
+    pickup_company: 'High Plains Fabrication',
+    pickup_address: '1500 Commerce Drive',
+    pickup_city: 'Abilene',
+    pickup_state: 'TX',
+    pickup_contact: 'Dana Hall',
+    pickup_phone: '(325) 555-0116',
+    pickup_at: new Date(Date.now() + 172800000).toISOString(),
+    pickup_instructions: 'Enter through the south equipment gate.',
+    delivery_company: 'Frontier Site Services',
+    delivery_address: '880 County Road 12',
+    delivery_city: 'Odessa',
+    delivery_state: 'TX',
+    delivery_contact: 'Luis Ramirez',
+    delivery_phone: '(432) 555-0168',
+    delivery_at: new Date(Date.now() + 259200000).toISOString(),
+    delivery_instructions: 'Call 30 minutes before arrival.',
+    freight_description: 'Skid-mounted pump equipment',
+    pieces: 1,
+    estimated_weight: 9400,
+    dimensions: '16 ft × 7 ft × 6 ft',
+    equipment_requirements: '40 ft gooseneck',
+    securement_requirements: 'Chains, binders, and edge protection',
+    customer_rate: 2100,
+    estimated_fuel: 310,
+    additional_expenses: 0,
+    loaded_miles: 265,
+    deadhead_miles: 44,
+    current_eta: null,
+    tracking_token: 'demo-track-2',
+    tracking_visibility: 'city_state',
+    driver_location_sharing_allowed: true,
+    location_last_updated_at: null,
+    location_last_latitude: null,
+    location_last_longitude: null,
+    location_accuracy_meters: null,
+    customers: { company_name: 'High Plains Fabrication' },
+  },
 ]
 
 const demoRequests: LoadRequestRecord[] = [

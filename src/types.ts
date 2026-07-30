@@ -66,23 +66,36 @@ export type LoadStatus =
   | 'delayed' | 'arrived_at_delivery' | 'delivered' | 'pod_received'
   | 'invoice_sent' | 'paid' | 'cancelled'
 
+export type TrackingVisibility = 'exact' | 'approximate' | 'city_state' | 'milestones_only'
+
 export type LoadRecord = {
   id: string
   load_number: string
   customer_id: string | null
+  assigned_driver_id: string | null
   status: LoadStatus
   pickup_company: string | null
   pickup_address: string
   pickup_city: string
   pickup_state: string
+  pickup_contact: string | null
+  pickup_phone: string | null
   pickup_at: string | null
+  pickup_instructions: string | null
   delivery_company: string | null
   delivery_address: string
   delivery_city: string
   delivery_state: string
+  delivery_contact: string | null
+  delivery_phone: string | null
   delivery_at: string | null
+  delivery_instructions: string | null
   freight_description: string
+  pieces: number | null
   estimated_weight: number | null
+  dimensions: string | null
+  equipment_requirements: string | null
+  securement_requirements: string | null
   customer_rate: number
   driver_pay: number
   estimated_fuel: number
@@ -91,8 +104,15 @@ export type LoadRecord = {
   deadhead_miles: number
   current_eta: string | null
   tracking_token: string
+  tracking_visibility: TrackingVisibility
+  driver_location_sharing_allowed: boolean
+  location_last_updated_at: string | null
+  location_last_latitude: number | null
+  location_last_longitude: number | null
+  location_accuracy_meters: number | null
   created_at: string
   customers?: { company_name: string } | null
+  assigned_driver?: { full_name: string | null } | null
 }
 
 export type LoadRequestRecord = {
@@ -164,4 +184,52 @@ export type DocumentRecord = {
   created_at: string
   loads?: { load_number: string } | null
   customers?: { company_name: string } | null
+}
+
+export type DriverChecklistPhase = 'pickup' | 'delivery'
+
+export type DriverChecklistItem = {
+  id: string
+  load_id: string
+  phase: DriverChecklistPhase
+  item_key: string
+  label: string
+  required: boolean
+  sort_order: number
+  completed_at: string | null
+  completed_by: string | null
+  notes: string | null
+}
+
+export type DriverTimeEventType =
+  | 'started_work'
+  | 'en_route_to_pickup'
+  | 'arrived_at_pickup'
+  | 'departed_pickup'
+  | 'fuel_stop'
+  | 'break'
+  | 'arrived_at_delivery'
+  | 'departed_delivery'
+  | 'finished_work'
+
+export type DriverTimeEvent = {
+  id: string
+  load_id: string
+  driver_id: string
+  event_type: DriverTimeEventType
+  occurred_at: string
+  notes: string | null
+  latitude: number | null
+  longitude: number | null
+}
+
+export type LocationSession = {
+  id: string
+  load_id: string
+  driver_id: string
+  status: 'active' | 'stopped' | 'completed'
+  visibility: TrackingVisibility
+  started_at: string
+  ended_at: string | null
+  last_location_at: string | null
 }
