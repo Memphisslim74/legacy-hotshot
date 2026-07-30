@@ -17,6 +17,7 @@ export function LoadDetailPage() {
   const [load, setLoad] = useState<LoadRecord | null>(null)
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
+  const [trackerCopied, setTrackerCopied] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
@@ -49,6 +50,20 @@ export function LoadDetailPage() {
     }
   }
 
+  const trackerPath = load ? `/track/${load.tracking_token}` : ''
+  const trackerUrl = load && typeof window !== 'undefined' ? `${window.location.origin}${trackerPath}` : trackerPath
+
+  const copyTrackerLink = async () => {
+    if (!load) return
+    try {
+      await navigator.clipboard.writeText(trackerUrl)
+      setTrackerCopied(true)
+      window.setTimeout(() => setTrackerCopied(false), 2400)
+    } catch {
+      setError('Unable to copy the tracker link. Open the tracker and copy the address from your browser.')
+    }
+  }
+
   if (error && !load) return <div className="form-error operations-alert">{error}</div>
   if (!load) return <div className="panel empty-state">Loading shipment...</div>
 
@@ -59,10 +74,22 @@ export function LoadDetailPage() {
 
   return (
     <div className="operations-page load-detail-page">
-      <div className="page-command-row"><div><button className="back-link" onClick={() => navigate('/loads')}>← Loads</button><span className="eyebrow">{load.customers?.company_name || 'LEGACY LOAD'}</span><h2>{load.load_number}</h2><p>{load.freight_description}</p></div><div className="load-detail-actions"><button className="secondary-button" onClick={() => navigate('/communications')}><Icon name="messages" size={17} /> Send Update</button><button className="primary-button" onClick={() => navigate('/documents')}><Icon name="documents" size={17} /> Add Document</button></div></div>
+      <div className="page-command-row">
+        <div><button className="back-link" onClick={() => navigate('/loads')}>← Loads</button><span className="eyebrow">{load.customers?.company_name || 'LEGACY LOAD'}</span><h2>{load.load_number}</h2><p>{load.freight_description}</p></div>
+        <div className="load-detail-actions">
+          <button className="secondary-button" onClick={copyTrackerLink}><Icon name={trackerCopied ? 'check' : 'route'} size={17} /> {trackerCopied ? 'Tracker Link Copied' : 'Copy Tracker Link'}</button>
+          <a className="secondary-button" href={trackerPath} target="_blank" rel="noreferrer"><Icon name="arrow" size={17} /> Preview Tracker</a>
+          <button className="secondary-button" onClick={() => navigate('/communications')}><Icon name="messages" size={17} /> Send Update</button>
+          <button className="primary-button" onClick={() => navigate('/documents')}><Icon name="documents" size={17} /> Add Document</button>
+        </div>
+      </div>
       {error && <div className="form-error operations-alert">{error}</div>}
 
-      <section className="panel load-status-bar"><div><span>Current status</span><select value={load.status} disabled={saving} onChange={(e) => changeStatus(e.target.value as LoadStatus)}>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div><div><span>Current ETA</span><strong>{load.current_eta ? new Date(load.current_eta).toLocaleString() : 'Not set'}</strong></div><div><span>Customer tracking</span><strong>/track/{load.tracking_token.slice(0, 8)}…</strong></div></section>
+      <section className="panel load-status-bar">
+        <div><span>Current status</span><select value={load.status} disabled={saving} onChange={(e) => changeStatus(e.target.value as LoadStatus)}>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
+        <div><span>Current ETA</span><strong>{load.current_eta ? new Date(load.current_eta).toLocaleString() : 'Not set'}</strong></div>
+        <div><span>Customer tracker</span><strong>{trackerCopied ? 'Link copied to clipboard' : `Visibility: ${load.tracking_visibility.replaceAll('_', ' ')}`}</strong></div>
+      </section>
 
       <section className="load-detail-grid">
         <article className="panel load-route-panel"><div className="panel__header panel__header--bordered"><div><span className="panel__eyebrow">SHIPMENT ROUTE</span><h3>Pickup & Delivery</h3></div></div><div className="load-route-detail">
