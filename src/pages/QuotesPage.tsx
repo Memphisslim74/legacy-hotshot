@@ -8,6 +8,7 @@ import type { LoadRequestRecord } from '../types'
 
 const demoQuotes: QuoteRecord[] = [
   { id: 'quote-1', quote_number: 'LHQ-1003', load_request_id: 'request-1', estimated_mileage: 285, base_rate: 1950, fuel_surcharge: 225, tarping_charge: 0, additional_services: 0, total_amount: 2175, detention_terms: '2 hours free, then $95/hour', payment_terms: 'Net 30', expires_at: new Date(Date.now()+172800000).toISOString(), notes: null, status: 'sent', public_token: 'demo-quote-token', created_at: new Date().toISOString(), load_requests: { request_number: 'LHR-1003', requester_company: 'High Plains Fabrication', requester_name: 'Kara Ellis', requester_email: 'shipping@highplainsfab.com', pickup_city: 'Abilene', pickup_state: 'TX', delivery_city: 'Odessa', delivery_state: 'TX', freight_description: 'Skid-mounted pump equipment' } },
+  { id: 'quote-2', quote_number: 'LHQ-1004', load_request_id: 'request-2', estimated_mileage: 342, base_rate: 2350, fuel_surcharge: 290, tarping_charge: 175, additional_services: 85, total_amount: 2900, detention_terms: '2 hours free, then $95/hour', payment_terms: 'Net 30', expires_at: new Date(Date.now()+259200000).toISOString(), notes: 'Requires tarping and edge protection.', status: 'draft', public_token: 'demo-quote-token-2', created_at: new Date(Date.now()-3600000).toISOString(), load_requests: { request_number: 'LHR-1004', requester_company: 'Red River Machinery', requester_name: 'Angela Price', requester_email: 'angela@redrivermachinery.com', pickup_city: 'Wichita Falls', pickup_state: 'TX', delivery_city: 'Lubbock', delivery_state: 'TX', freight_description: 'Compact excavator attachment' } },
 ]
 
 export function QuotesPage() {
@@ -18,6 +19,7 @@ export function QuotesPage() {
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
+  const [showingSampleData, setShowingSampleData] = useState(false)
   const [values, setValues] = useState({ loadRequestId: '', estimatedMileage: '', baseRate: '', fuelSurcharge: '', tarpingCharge: '', additionalServices: '', detentionTerms: '2 hours free, then $95/hour', paymentTerms: 'Net 30', expiresAt: '', notes: '' })
 
   useEffect(() => {
@@ -26,10 +28,12 @@ export function QuotesPage() {
         if (!user?.companyId || user.demo) {
           setQuotes(demoQuotes)
           setRequests([])
+          setShowingSampleData(true)
         } else {
           const [quoteRows, requestRows] = await Promise.all([listQuotes(user.companyId), listLoadRequests(user.companyId)])
-          setQuotes(quoteRows)
+          setQuotes(quoteRows.length ? quoteRows : demoQuotes)
           setRequests(requestRows.filter((request) => !['converted', 'cancelled', 'declined'].includes(request.status)))
+          setShowingSampleData(quoteRows.length === 0)
         }
       } catch (caught) {
         setError(caught instanceof Error ? caught.message : 'Unable to load quotes.')
@@ -55,6 +59,7 @@ export function QuotesPage() {
         ? { ...demoQuotes[0], id: `demo-${Date.now()}`, quote_number: `LHQ-${Date.now().toString().slice(-4)}`, total_amount: total, base_rate: Number(values.baseRate || 0), fuel_surcharge: Number(values.fuelSurcharge || 0), tarping_charge: Number(values.tarpingCharge || 0), additional_services: Number(values.additionalServices || 0), status: 'draft', load_requests: request ? { request_number: request.request_number, requester_company: request.requester_company, requester_name: request.requester_name, requester_email: request.requester_email, pickup_city: request.pickup_city, pickup_state: request.pickup_state, delivery_city: request.delivery_city, delivery_state: request.delivery_state, freight_description: request.freight_description } : null } as QuoteRecord
         : await createQuote(user.companyId, user.id, values)
       setQuotes((current) => [created, ...current])
+      setShowingSampleData(false)
       setShowForm(false)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Unable to create quote.')
@@ -66,6 +71,7 @@ export function QuotesPage() {
   const changeStatus = async (quote: QuoteRecord, status: QuoteRecord['status']) => {
     const previous = quote.status
     setQuotes((current) => current.map((item) => item.id === quote.id ? { ...item, status } : item))
+    if (showingSampleData || quote.id.startsWith('quote-')) return
     try {
       if (!user?.demo) await updateQuoteStatus(quote.id, status)
     } catch (caught) {
@@ -78,6 +84,7 @@ export function QuotesPage() {
     <div className="operations-page">
       <div className="page-command-row"><div><span className="eyebrow">PRICING CONTROL</span><h2>Quotes</h2><p>Price each shipment clearly and keep approval status connected to the original request.</p></div><button className="primary-button" onClick={() => setShowForm(true)}><Icon name="plus" size={17} /> Create Quote</button></div>
       {error && <div className="form-error operations-alert">{error}</div>}
+      {showingSampleData && <div className="sample-data-banner"><Icon name="alert" size={16} /><span><strong>Sample Data — Preview Only</strong> No real quotes exist yet. Status changes to these examples remain local.</span></div>}
       <section className="panel operations-toolbar"><label className="operations-search"><Icon name="search" size={18} /><input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search quote, request, customer, or route" /></label><div className="operations-summary"><strong>{filtered.length}</strong><span>quotes</span></div></section>
       <section className="quote-grid">{filtered.map((quote) => <article className="panel quote-card" key={quote.id}>
         <div className="quote-card__header"><div><span className="request-number">{quote.quote_number}</span><h3>{quote.load_requests?.requester_company || quote.load_requests?.requester_name || 'Customer quote'}</h3></div><select className={`quote-status quote-status--${quote.status}`} value={quote.status} onChange={(e) => changeStatus(quote, e.target.value as QuoteRecord['status'])}><option value="draft">Draft</option><option value="sent">Sent</option><option value="approved">Approved</option><option value="declined">Declined</option><option value="expired">Expired</option><option value="converted">Converted</option></select></div>
