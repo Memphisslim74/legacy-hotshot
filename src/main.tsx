@@ -12,6 +12,7 @@ import './user-security.css'
 import './professional.css'
 import './relationships.css'
 import './tracker.css'
+import './legacy-operations.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
