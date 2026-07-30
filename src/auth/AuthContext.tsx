@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import type { PropsWithChildren } from 'react'
-import type { AppUser, UserRole } from '../types'
+import type { AppUser, CompanySetupInput, UserRole } from '../types'
 import { isSupabaseConfigured, supabase } from '../lib/supabase'
 
 type AuthContextValue = {
@@ -11,7 +11,7 @@ type AuthContextValue = {
   signIn: (email: string, password: string) => Promise<void>
   signOut: () => Promise<void>
   enterDemo: () => void
-  completeSetup: (companyName: string) => Promise<void>
+  completeSetup: (settings: CompanySetupInput) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined)
@@ -123,20 +123,25 @@ export function AuthProvider({ children }: PropsWithChildren) {
     setLoading(false)
   }, [])
 
-  const completeSetup = useCallback(async (companyName: string) => {
+  const completeSetup = useCallback(async (settings: CompanySetupInput) => {
     if (!user) return
     if (!supabase || user.demo) {
-      localStorage.setItem('legacy-hotshot-demo-company', companyName)
-      setUser((current) => (current ? { ...current, setupComplete: true } : current))
+      localStorage.setItem('legacy-hotshot-demo-company', JSON.stringify(settings))
+      setUser((current) => (current ? {
+        ...current,
+        fullName: settings.ownerName || current.fullName,
+        setupComplete: true,
+      } : current))
       return
     }
 
     const { data, error } = await supabase.rpc('complete_owner_setup', {
-      requested_company_name: companyName,
+      requested_settings: settings,
     })
     if (error) throw error
     setUser((current) => (current ? {
       ...current,
+      fullName: settings.ownerName || current.fullName,
       companyId: typeof data === 'string' ? data : current.companyId,
       setupComplete: true,
     } : current))
