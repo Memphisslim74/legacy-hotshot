@@ -26,6 +26,8 @@ interface PublicQuote {
   acceptedQuoteAmount: number | null
   acceptedQuoteVersion: number | null
   quoteVersion: number
+  bookedLoadId: string | null
+  bookedLoadNumber: string | null
 }
 
 const money = (value: number | null) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(value || 0))
@@ -85,17 +87,17 @@ export function PublicQuotePage() {
       <section className="public-quote-thank-you">
         <div className="public-quote-mark">✓</div>
         <span>QUOTE ACCEPTED</span>
-        <h1>Thank you. Your approval has been recorded.</h1>
-        <p>Legacy Hotshot received your approval and will follow up with scheduling and next-step details.</p>
+        <h1>Thank you. Your shipment is moving into dispatch.</h1>
+        <p>Legacy Hotshot received your approval and created the shipment record for scheduling.</p>
         <div className="public-quote-confirmation-grid">
           <div><small>Quote</small><strong>{quote.quoteNumber}</strong></div>
           <div><small>Approved amount</small><strong>{money(quote.acceptedQuoteAmount ?? quote.totalAmount)}</strong></div>
           <div><small>Accepted by</small><strong>{quote.acceptedByName}</strong></div>
           <div><small>Accepted</small><strong>{quote.acceptedAt ? new Date(quote.acceptedAt).toLocaleString() : 'Recorded'}</strong></div>
           <div><small>Route</small><strong>{quote.pickupCity}, {quote.pickupState} → {quote.deliveryCity}, {quote.deliveryState}</strong></div>
-          <div><small>Quote version</small><strong>Version {quote.acceptedQuoteVersion || quote.quoteVersion}</strong></div>
+          <div><small>Booked load</small><strong>{quote.bookedLoadNumber || 'Creating shipment record'}</strong></div>
         </div>
-        <p className="public-quote-contact">Questions or changes? Reply to your quote email and the Legacy Hotshot team will assist you.</p>
+        <p className="public-quote-contact">Legacy Hotshot will follow up with scheduling, driver assignment, and tracking details. Questions or changes can be sent by replying to the quote email.</p>
       </section>
     </main>
   )
