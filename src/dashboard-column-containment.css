@@ -1,0 +1,23 @@
+/* Keep the five-day schedule inside the left dashboard column while the sidecar floats on the right. */
+@media (min-width: 1201px) {
+  .dispatch-overview > .capacity-board {
+    width: calc(100% - 376px);
+    max-width: calc(100% - 376px);
+    box-sizing: border-box;
+  }
+}
+
+@media (min-width: 961px) and (max-width: 1200px) {
+  .dispatch-overview > .capacity-board {
+    width: calc(100% - 336px);
+    max-width: calc(100% - 336px);
+    box-sizing: border-box;
+  }
+}
+
+@media (max-width: 960px) {
+  .dispatch-overview > .capacity-board {
+    width: 100%;
+    max-width: 100%;
+  }
+}
