@@ -4,10 +4,11 @@ import { useAuth } from '../auth/AuthContext'
 import { Icon } from '../components/Icon'
 import { demoDriverLoad } from '../data/driverDemo'
 import { listLoadRequests, listLoads, updateLoadStatus } from '../lib/operations'
+import { formatDriveTime } from '../lib/routing'
 import type { LoadRecord, LoadRequestRecord, LoadStatus } from '../types'
 
 const demoLoads: LoadRecord[] = [
-  { ...demoDriverLoad, id: 'load-1', load_number: 'LH-1028' },
+  { ...demoDriverLoad, id: 'load-1', load_number: 'LH-1028', route_duration_seconds: 16920 },
   {
     ...demoDriverLoad,
     id: 'load-2',
@@ -41,6 +42,7 @@ const demoLoads: LoadRecord[] = [
     additional_expenses: 0,
     loaded_miles: 265,
     deadhead_miles: 44,
+    route_duration_seconds: 14400,
     current_eta: null,
     tracking_token: 'demo-track-2',
     tracking_visibility: 'city_state',
@@ -136,7 +138,7 @@ export function LoadsPage() {
         <div>
           <span>DISPATCH REGISTER</span>
           <h2>{tab === 'loads' ? 'Shipment Control' : 'Request Intake'}</h2>
-          <p>{tab === 'loads' ? 'Monitor load movement, appointments, driver assignment, and commercial status.' : 'Qualify incoming work before quoting or dispatching it.'}</p>
+          <p>{tab === 'loads' ? 'Monitor load movement, appointments, driver assignment, route mileage, drive time, and commercial status.' : 'Qualify incoming work before quoting or dispatching it.'}</p>
         </div>
         <button onClick={() => navigate('/loads/new')}><Icon name="plus" size={16} /> Create Load</button>
       </section>
@@ -162,7 +164,7 @@ export function LoadsPage() {
         <section className="shipment-register">
           <div className="shipment-register__table-wrap">
             <table>
-              <thead><tr><th>Load</th><th>Business</th><th>Route</th><th>Pickup appointment</th><th>Driver</th><th>Status</th><th>Rate</th><th /></tr></thead>
+              <thead><tr><th>Load</th><th>Business</th><th>Route</th><th>Pickup appointment</th><th>Driver</th><th>Status</th><th>Rate / Route</th><th /></tr></thead>
               <tbody>{visibleLoads.map((load) => (
                 <tr key={load.id}>
                   <td className="shipment-register__id"><strong>{load.load_number}</strong><span>{load.freight_description}</span></td>
@@ -171,7 +173,7 @@ export function LoadsPage() {
                   <td><strong>{load.pickup_at ? new Date(load.pickup_at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'Not scheduled'}</strong><span>{load.current_eta ? `ETA ${new Date(load.current_eta).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}` : 'No live ETA'}</span></td>
                   <td><strong>{load.assigned_driver?.full_name || (load.assigned_driver_id ? 'Assigned driver' : 'Unassigned')}</strong><span>{load.equipment_requirements || 'Equipment pending'}</span></td>
                   <td><select className={`status-select status-select--${load.status}`} value={load.status} onChange={(event) => changeStatus(load, event.target.value as LoadStatus)}>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></td>
-                  <td><strong>${Number(load.customer_rate || 0).toLocaleString()}</strong><span>{Number(load.loaded_miles || 0).toLocaleString()} loaded mi</span></td>
+                  <td><strong>${Number(load.customer_rate || 0).toLocaleString()}</strong><span>{Number(load.loaded_miles || 0).toLocaleString()} loaded mi · {formatDriveTime(load.route_duration_seconds)}</span></td>
                   <td><button onClick={() => navigate(`/loads/${load.id}`)} aria-label={`Open ${load.load_number}`}><Icon name="arrow" size={16} /></button></td>
                 </tr>
               ))}</tbody>

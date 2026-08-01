@@ -4,6 +4,7 @@ import { useAuth } from '../auth/AuthContext'
 import { Icon } from '../components/Icon'
 import { demoDriverLoad } from '../data/driverDemo'
 import { listDriverLoads } from '../lib/driverOperations'
+import { formatDriveTime } from '../lib/routing'
 import type { LoadRecord } from '../types'
 
 const activeStatuses = new Set(['booked', 'driver_assigned', 'en_route_to_pickup', 'arrived_at_pickup', 'loaded', 'in_transit', 'delayed', 'arrived_at_delivery'])
@@ -12,7 +13,7 @@ const statusLabels: Record<string, string> = {
 }
 
 const demoAssignments: LoadRecord[] = [
-  demoDriverLoad,
+  { ...demoDriverLoad, route_duration_seconds: 16920 },
   {
     ...demoDriverLoad,
     id: 'driver-demo-upcoming',
@@ -29,6 +30,8 @@ const demoAssignments: LoadRecord[] = [
     delivery_state: 'TX',
     delivery_at: new Date(Date.now() + 172800000).toISOString(),
     freight_description: 'Skid-mounted pump equipment',
+    loaded_miles: 265,
+    route_duration_seconds: 14400,
     tracking_token: 'demo-track-2',
   },
 ]
@@ -96,7 +99,7 @@ export function DriverPortalPage() {
             <i><Icon name="truck" size={22} /></i>
             <div><small>DELIVERY</small><strong>{currentLoad.delivery_city}, {currentLoad.delivery_state}</strong><span>{currentLoad.delivery_company || 'Delivery location'}</span><time>{currentLoad.delivery_at ? new Date(currentLoad.delivery_at).toLocaleString() : 'Appointment pending'}</time></div>
           </div>
-          <div className="driver-current-freight"><span>Freight</span><strong>{currentLoad.freight_description}</strong><small>{currentLoad.equipment_requirements || 'Equipment requirements pending'}</small></div>
+          <div className="driver-current-freight"><span>Freight</span><strong>{currentLoad.freight_description}</strong><small>{currentLoad.equipment_requirements || 'Equipment requirements pending'} · {Number(currentLoad.loaded_miles || 0).toLocaleString()} loaded mi · {formatDriveTime(currentLoad.route_duration_seconds)}</small></div>
           <button onClick={() => navigate(`/driver/loads/${currentLoad.id}`)}>Open field workflow <Icon name="arrow" size={17} /></button>
         </section>
       ) : <div className="driver-board-state">No active assignment right now.</div>}
@@ -104,7 +107,7 @@ export function DriverPortalPage() {
       <section className="driver-upcoming-board">
         <div className="driver-upcoming-board__head"><div><span>NEXT UP</span><h3>Upcoming assignments</h3></div><small>{upcomingLoads.length} scheduled</small></div>
         <div className="driver-upcoming-list">
-          {upcomingLoads.map((load) => <button key={load.id} onClick={() => navigate(`/driver/loads/${load.id}`)}><span><strong>{load.load_number}</strong><small>{statusLabels[load.status] || load.status.replaceAll('_', ' ')}</small></span><span><strong>{load.pickup_city}, {load.pickup_state} → {load.delivery_city}, {load.delivery_state}</strong><small>{load.pickup_at ? new Date(load.pickup_at).toLocaleString() : 'Pickup pending'}</small></span><Icon name="arrow" size={17} /></button>)}
+          {upcomingLoads.map((load) => <button key={load.id} onClick={() => navigate(`/driver/loads/${load.id}`)}><span><strong>{load.load_number}</strong><small>{statusLabels[load.status] || load.status.replaceAll('_', ' ')}</small></span><span><strong>{load.pickup_city}, {load.pickup_state} → {load.delivery_city}, {load.delivery_state}</strong><small>{load.pickup_at ? new Date(load.pickup_at).toLocaleString() : 'Pickup pending'} · {Number(load.loaded_miles || 0).toLocaleString()} mi · {formatDriveTime(load.route_duration_seconds)}</small></span><Icon name="arrow" size={17} /></button>)}
           {!upcomingLoads.length && <div className="driver-board-state">No additional assignments are scheduled.</div>}
         </div>
       </section>

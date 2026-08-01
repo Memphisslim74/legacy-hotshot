@@ -145,6 +145,10 @@ export type LoadRecord = {
   additional_expenses: number
   loaded_miles: number
   deadhead_miles: number
+  route_distance_meters?: number | null
+  route_duration_seconds?: number | null
+  route_calculated_at?: string | null
+  route_provider?: string | null
   current_eta: string | null
   tracking_token: string
   tracking_visibility: TrackingVisibility
