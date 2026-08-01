@@ -4,6 +4,7 @@ import { useAuth } from '../auth/AuthContext'
 import { Icon } from '../components/Icon'
 import { demoDriverLoad } from '../data/driverDemo'
 import { listDriverLoads } from '../lib/driverOperations'
+import { formatDriveTime } from '../lib/routing'
 import type { LoadRecord } from '../types'
 import { DriverLoadPage } from './DriverLoadPage'
 
@@ -59,6 +60,8 @@ export function DriverLoadWorkspacePage() {
     <div className="driver-load-shell-v2">
       {load && <section className="driver-route-command">
         <div className="driver-route-command__identity"><span>ROUTE COMMAND</span><strong>{load.load_number}</strong><small>{load.pickup_city}, {load.pickup_state} → {load.delivery_city}, {load.delivery_state}</small></div>
+        <div className="driver-route-command__group"><span>Loaded miles</span><strong>{load.loaded_miles ? load.loaded_miles.toLocaleString() : 'Not calculated'}</strong><small>{load.route_provider === 'manual' ? 'Manual estimate' : 'Saved route estimate'}</small></div>
+        <div className="driver-route-command__group"><span>Drive time</span><strong>{formatDriveTime(load.route_duration_seconds)}</strong><small>Estimated driving time</small></div>
         <div className="driver-route-command__group"><span>Pickup</span><a href={googleDirections(pickup)} target="_blank" rel="noreferrer"><Icon name="route" size={15} /> Google</a><a href={appleDirections(pickup)} target="_blank" rel="noreferrer"><Icon name="route" size={15} /> Apple</a></div>
         <div className="driver-route-command__group"><span>Delivery</span><a href={googleDirections(delivery)} target="_blank" rel="noreferrer"><Icon name="route" size={15} /> Google</a><a href={appleDirections(delivery)} target="_blank" rel="noreferrer"><Icon name="route" size={15} /> Apple</a></div>
         <div className="driver-route-command__group driver-route-command__group--full"><span>Full route</span><a href={googleDirections(delivery, pickup)} target="_blank" rel="noreferrer"><Icon name="arrow" size={15} /> Google Route</a><a href={appleDirections(delivery, pickup)} target="_blank" rel="noreferrer"><Icon name="arrow" size={15} /> Apple Route</a></div>
