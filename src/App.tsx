@@ -13,6 +13,7 @@ import { DocumentsPage } from './pages/DocumentsPage'
 import { QuotesPage } from './pages/QuotesPage'
 import { PublicLoadRequestPage } from './pages/PublicLoadRequestPage'
 import { PublicLoadTrackerPage } from './pages/PublicLoadTrackerPage'
+import { PublicQuotePage } from './pages/PublicQuotePage'
 import { CompanySettingsPage } from './pages/CompanySettingsPage'
 import { DriverPortalPage } from './pages/DriverPortalPage'
 import { DriverLoadWorkspacePage } from './pages/DriverLoadWorkspacePage'
@@ -53,6 +54,7 @@ export default function App() {
       <Route path="/setup" element={<SetupPage />} />
       <Route path="/request-load" element={<PublicLoadRequestPage />} />
       <Route path="/track/:token" element={<PublicLoadTrackerPage />} />
+      <Route path="/quote/:token" element={<PublicQuotePage />} />
       <Route element={<ProtectedLayout />}>
         <Route path="driver" element={<DriverPortalPage />} />
         <Route path="driver/loads/:id" element={<DriverLoadWorkspacePage />} />
