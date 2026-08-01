@@ -1,0 +1,207 @@
+/* Final readable-scale pass for intake, records, shipment control, driver, and tracker. */
+
+/* Shared page heads */
+.record-page-head,
+.shipment-control-head,
+.load-intake-header,
+.driver-board-header {
+  padding: 30px 32px 26px;
+}
+.record-page-head h2,
+.shipment-control-head h2,
+.load-intake-header h2,
+.driver-board-header h2 {
+  font-size: clamp(2rem, 2.5vw, 2.55rem);
+  line-height: 1.05;
+}
+.record-page-head p,
+.shipment-control-head p,
+.load-intake-header p,
+.driver-board-header p {
+  font-size: .94rem;
+}
+.record-primary-action,
+.shipment-command-actions button,
+.shipment-command-actions a {
+  min-height: 42px;
+  padding: 0 14px;
+  font-size: .75rem;
+}
+
+/* Create Load */
+.load-intake-workspace { gap: 22px; }
+.load-intake-layout { grid-template-columns: 300px minmax(0, 1fr); }
+.load-intake-index { min-height: 720px; padding: 28px 24px; }
+.load-intake-index__title span { font-size: .66rem; }
+.load-intake-index__title strong { font-size: 1rem; }
+.load-intake-index li { grid-template-columns: 34px 1fr; gap: 12px; padding: 18px 0; }
+.load-intake-index li > span { width: 30px; height: 30px; font-size: .7rem; }
+.load-intake-index li strong { font-size: .79rem; }
+.load-intake-index li small,
+.load-intake-index__help p { font-size: .67rem; }
+.load-intake-document { padding: 0 32px 34px; }
+.load-intake-document__head { margin: 0 -32px 24px; padding: 18px 32px; }
+.load-intake-document__head span { font-size: .65rem; }
+.load-intake-document__head strong { font-size: .98rem; }
+.load-intake-document__head small { font-size: .72rem; }
+.load-intake-document .load-request-form label { font-size: .72rem; }
+.load-intake-document .load-request-form input,
+.load-intake-document .load-request-form select,
+.load-intake-document .load-request-form textarea { min-height: 42px; font-size: .82rem; }
+
+/* Pricing queue */
+.pricing-metric-strip { margin: 22px 32px 0; }
+.pricing-metric-strip > div { min-height: 88px; padding: 16px 20px; }
+.pricing-metric-strip span { font-size: .68rem; }
+.pricing-metric-strip strong { font-size: 1.7rem; }
+.pricing-queue-page > .record-filterbar { margin: 14px 32px 0; }
+.record-filterbar { min-height: 58px; padding: 9px 14px; }
+.record-filterbar input { height: 38px; font-size: .82rem; }
+.record-filterbar select { height: 38px; font-size: .76rem; }
+.record-filterbar > span { font-size: .74rem; }
+.pricing-register { margin: 0 32px 34px; }
+.pricing-register__head,
+.pricing-register article { grid-template-columns: 125px 1.45fr 1.25fr 170px 135px 145px; }
+.pricing-register__head { min-height: 44px; font-size: .65rem; }
+.pricing-register article { min-height: 96px; }
+.pricing-register strong { font-size: .8rem; }
+.pricing-register small { font-size: .68rem; }
+.pricing-commercials strong { font-size: 1.05rem; }
+.pricing-register select { height: 36px; font-size: .72rem; }
+
+/* Document vault */
+.records-vault-layout { grid-template-columns: 250px minmax(0, 1fr); gap: 18px; padding: 22px 32px 34px; }
+.records-vault-index__title { min-height: 56px; }
+.records-vault-index__title span { font-size: .66rem; }
+.records-vault-index > button { min-height: 50px; font-size: .75rem; }
+.records-vault-index > button strong { font-size: .7rem; }
+.records-vault-policy p { font-size: .69rem; }
+.document-register-v2__head,
+.document-register-v2 article { grid-template-columns: 1.6fr 1fr 1fr 135px 120px 46px; }
+.document-register-v2__head { min-height: 44px; font-size: .65rem; }
+.document-register-v2 article { min-height: 80px; }
+.document-register-v2 strong { font-size: .78rem; }
+.document-register-v2 small { font-size: .67rem; }
+.document-register-v2__file > span { width: 36px; height: 36px; }
+.document-register-v2 article > button { width: 34px; height: 34px; }
+
+/* Shipment detail */
+.shipment-status-strip { margin: 22px 32px 0; }
+.shipment-status-strip > div { min-height: 78px; padding: 12px 18px; }
+.shipment-status-strip span { font-size: .65rem; }
+.shipment-status-strip strong,
+.shipment-status-strip select { font-size: .78rem; }
+.shipment-status-strip select { height: 34px; }
+.shipment-control-grid { grid-template-columns: minmax(0, 1fr) 380px; gap: 18px; padding: 18px 32px 34px; }
+.shipment-section-head { min-height: 60px; padding: 10px 16px; }
+.shipment-section-head span { font-size: .64rem; }
+.shipment-section-head h3 { font-size: 1rem; }
+.shipment-full-route a,
+.shipment-map-links a { height: 34px; font-size: .69rem; }
+.shipment-stop-row { grid-template-columns: 50px minmax(240px, 1.45fr) 1fr 1fr 125px; min-height: 136px; }
+.shipment-stop-marker { width: 34px; height: 34px; font-size: .75rem; }
+.shipment-stop-identity span,
+.shipment-stop-row > div > span { font-size: .64rem; }
+.shipment-stop-identity h4 { font-size: .9rem; }
+.shipment-stop-identity p,
+.shipment-stop-row strong { font-size: .75rem; }
+.shipment-stop-row small { font-size: .67rem; }
+.shipment-detail-register dl > div { min-height: 92px; padding: 15px 16px; }
+.shipment-detail-register dt { font-size: .65rem; }
+.shipment-detail-register dd { font-size: .76rem; }
+.shipment-economics dt { font-size: .73rem; }
+.shipment-economics dd { font-size: .79rem; }
+.shipment-economics .shipment-profit dd { font-size: 1.25rem; }
+.shipment-economics-metrics strong { font-size: .9rem; }
+.shipment-economics-metrics span { font-size: .62rem; }
+.shipment-tracker-control > p { font-size: .73rem; }
+.shipment-tracker-control > button,
+.shipment-tracker-control > a { min-height: 40px; font-size: .72rem; }
+
+/* Driver portal */
+.driver-assignment-board { gap: 22px; }
+.driver-board-safety { max-width: 410px; font-size: .76rem; }
+.driver-board-strip > div { min-height: 82px; padding: 16px 20px; }
+.driver-board-strip span { font-size: .65rem; }
+.driver-board-strip strong { font-size: 1.35rem; }
+.driver-current-trip__head { padding: 18px 22px; }
+.driver-current-trip__head span { font-size: .65rem; }
+.driver-current-trip__head strong { font-size: 1.2rem; }
+.driver-trip-status { font-size: .68rem; }
+.driver-current-route { grid-template-columns: 1fr 90px 1fr; padding: 28px 22px; }
+.driver-current-route small,
+.driver-current-freight > span { font-size: .64rem; }
+.driver-current-route strong { font-size: 1.35rem; }
+.driver-current-route span,
+.driver-current-route time { font-size: .78rem; }
+.driver-current-freight { padding: 18px 22px; }
+.driver-current-freight strong { font-size: .94rem; }
+.driver-current-freight small { font-size: .73rem; }
+.driver-current-trip > button { min-height: 54px; padding: 0 22px; font-size: .82rem; }
+.driver-upcoming-board__head { padding: 18px 22px; }
+.driver-upcoming-board__head span { font-size: .64rem; }
+.driver-upcoming-board__head h3 { font-size: 1.15rem; }
+.driver-upcoming-board__head small { font-size: .7rem; }
+.driver-upcoming-list > button { grid-template-columns: 170px 1fr 28px; padding: 18px 22px; }
+.driver-upcoming-list strong { font-size: .8rem; }
+.driver-upcoming-list small { font-size: .69rem; }
+
+/* Public tracker readability and logo preservation */
+.tracker-header .brand-mark__logo {
+  width: auto !important;
+  height: auto !important;
+  max-width: 180px !important;
+  max-height: 82px !important;
+  object-fit: contain !important;
+}
+.tracker-header__support span { font-size: .72rem; }
+.tracker-header__support a { font-size: .9rem; }
+.tracker-kicker { font-size: .72rem; }
+.tracker-hero__copy p { font-size: .95rem; }
+.tracker-eta-card span { font-size: .72rem; }
+.tracker-eta-card strong { font-size: 1.15rem; }
+.tracker-eta-card small { font-size: .75rem; }
+.tracker-progress-heading span,
+.tracker-section-heading span { font-size: .7rem; }
+.tracker-progress-heading strong,
+.tracker-section-heading h2 { font-size: 1.3rem; }
+.tracker-progress-heading small,
+.tracker-section-heading small { font-size: .76rem; }
+.tracker-step-copy strong { font-size: .77rem; }
+.tracker-step-copy span { font-size: .67rem; }
+.tracker-step-copy small { font-size: .64rem; }
+.tracker-route-card span { font-size: .68rem; }
+.tracker-route-card h2 { font-size: 1.3rem; }
+.tracker-route-card p { font-size: .82rem; }
+.tracker-route-card strong { font-size: .84rem; }
+.tracker-card-heading span { font-size: .68rem; }
+.tracker-card-heading strong { font-size: .94rem; }
+.tracker-info-card p,
+.tracker-map-link { font-size: .82rem; }
+.tracker-document-list strong { font-size: .84rem; }
+.tracker-document-list span { font-size: .71rem; }
+.tracker-footer strong { font-size: .82rem; }
+.tracker-footer span { font-size: .72rem; }
+
+@media (max-width: 1050px) {
+  .load-intake-layout { grid-template-columns: 250px minmax(0, 1fr); }
+  .shipment-control-grid { grid-template-columns: 1fr; }
+  .shipment-control-aside { grid-template-columns: 1fr 1fr; }
+  .records-vault-layout { grid-template-columns: 210px minmax(0, 1fr); }
+}
+
+@media (max-width: 820px) {
+  .record-page-head,
+  .shipment-control-head,
+  .load-intake-header,
+  .driver-board-header { padding: 22px 18px; }
+  .pricing-metric-strip,
+  .shipment-status-strip { margin: 16px 18px 0; }
+  .pricing-queue-page > .record-filterbar { margin: 12px 18px 0; }
+  .pricing-register { margin: 0 18px 24px; }
+  .records-vault-layout,
+  .shipment-control-grid { padding: 16px 18px 24px; }
+  .load-intake-layout { grid-template-columns: 1fr; }
+  .load-intake-index { min-height: 0; }
+  .driver-current-route { grid-template-columns: 1fr; }
+}
