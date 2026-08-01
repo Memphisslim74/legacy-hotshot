@@ -78,11 +78,14 @@ export function DriversPage() {
     try {
       if (showingSampleData || user.demo || !user.companyId) {
         setLoads((current) => current.map((item) => item.id === load.id ? { ...item, assigned_driver_id: driver?.id ?? null, status: driver && item.status === 'booked' ? 'driver_assigned' : (!driver && item.status === 'driver_assigned' ? 'booked' : item.status) } : item))
+        setMessage(driver ? `${driver.full_name} is assigned to ${load.load_number}. Sample notification preview only.` : `${load.load_number} is now unassigned.`)
       } else {
-        const updated = await assignDriverToLoad(user.companyId, user.id, load, driver)
-        setLoads((current) => current.map((item) => item.id === load.id ? updated : item))
+        const result = await assignDriverToLoad(user.companyId, user.id, load, driver)
+        setLoads((current) => current.map((item) => item.id === load.id ? result.load : item))
+        if (!driver) setMessage(`${load.load_number} is now unassigned.`)
+        else if (result.notified) setMessage(`${driver.full_name} is assigned to ${load.load_number}, and the assignment email was sent to ${result.driverEmail}.`)
+        else setMessage(`${driver.full_name} is assigned to ${load.load_number}. ${result.notificationError || 'The assignment email was not sent.'}`)
       }
-      setMessage(driver ? `${driver.full_name} is assigned to ${load.load_number}.` : `${load.load_number} is now unassigned.`)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Unable to update the driver assignment.')
     } finally {
@@ -128,7 +131,7 @@ export function DriversPage() {
             <div><strong>{load.pickup_city}, {load.pickup_state} → {load.delivery_city}, {load.delivery_state}</strong><small>Pickup {appointment(load.pickup_at)}</small></div>
             <div><strong>{load.freight_description}</strong><small>{Number(load.loaded_miles || 0).toLocaleString()} loaded miles</small></div>
             <div><span className={`driver-status driver-status--${load.status}`}>{load.status.replaceAll('_', ' ')}</span></div>
-            <div className="driver-assignment-control"><select value={load.assigned_driver_id || ''} disabled={savingLoadId === load.id || showingSampleData && !loads.length} onChange={(event) => assign(load, event.target.value)}><option value="">Unassigned</option>{activeDrivers.map((item) => <option key={item.id} value={item.id}>{item.full_name}</option>)}</select><small>{savingLoadId === load.id ? 'Saving assignment…' : driver ? `${driver.full_name} has this load` : 'Choose a driver'}</small></div>
+            <div className="driver-assignment-control"><select value={load.assigned_driver_id || ''} disabled={savingLoadId === load.id || showingSampleData && !loads.length} onChange={(event) => assign(load, event.target.value)}><option value="">Unassigned</option>{activeDrivers.map((item) => <option key={item.id} value={item.id}>{item.full_name}</option>)}</select><small>{savingLoadId === load.id ? 'Saving and notifying driver…' : driver ? `${driver.full_name} has this load` : 'Choose a driver'}</small></div>
           </article>
         })}
         {!filteredLoads.length && <div className="driver-dispatch-empty">No active loads match the current search.</div>}
