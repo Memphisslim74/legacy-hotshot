@@ -1,0 +1,41 @@
+/* Keep the left dashboard column flowing independently from the taller sidecar. */
+@media (min-width: 961px) {
+  .dispatch-layout {
+    position: relative;
+    display: block;
+    padding-right: 376px;
+  }
+
+  .dispatch-board {
+    width: 100%;
+  }
+
+  .dispatch-sidecar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 360px;
+  }
+}
+
+@media (min-width: 961px) and (max-width: 1200px) {
+  .dispatch-layout {
+    padding-right: 336px;
+  }
+
+  .dispatch-sidecar {
+    width: 320px;
+  }
+}
+
+@media (max-width: 960px) {
+  .dispatch-layout {
+    display: grid;
+    padding-right: 0;
+  }
+
+  .dispatch-sidecar {
+    position: static;
+    width: auto;
+  }
+}
