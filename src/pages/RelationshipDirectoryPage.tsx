@@ -184,7 +184,7 @@ export function RelationshipDirectoryPage() {
           <div className="relationship-v2-card__roles">{item.relationship_types.map((role) => <span key={role}>{roleLabels[role]}</span>)}{item.preferred_partner && <span className="preferred">Preferred</span>}</div>
           <dl><div><dt>Primary contact</dt><dd>{item.primary_contact || 'Not assigned'}</dd></div><div><dt>Email</dt><dd>{item.email || 'Not provided'}</dd></div><div><dt>Phone</dt><dd>{item.phone || 'Not provided'}</dd></div><div><dt>Terms</dt><dd>{item.payment_terms}</dd></div></dl>
           {item.notes && <p className="relationship-v2-card__note">{item.notes}</p>}
-          <footer><button onClick={() => openEdit(item)}>View & Edit</button>{item.email && <a href={`mailto:${item.email}`}>Email</a>}{item.phone && <a href={`tel:${item.phone}`}>Call</a>}{item.relationship_types.includes('customer') && <button onClick={() => navigate('/loads/new')}>New Load <Icon name="arrow" size={13} /></button>}</footer>
+          <footer><button onClick={() => openEdit(item)}>View & Edit</button>{item.email && <a href={`mailto:${item.email}`}>Email</a>}{item.phone && <a href={`tel:${item.phone}`}>Call</a>}<button onClick={() => navigate(`/loads/new?businessId=${encodeURIComponent(item.id)}`)}>Create Load <Icon name="arrow" size={13} /></button></footer>
         </article>)}
         {!filtered.length && <div className="relationship-v2__empty">No businesses match the current search or filter.</div>}
       </section>}
