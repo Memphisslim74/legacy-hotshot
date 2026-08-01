@@ -17,6 +17,7 @@ import { PublicQuotePage } from './pages/PublicQuotePage'
 import { CompanySettingsPage } from './pages/CompanySettingsPage'
 import { DriverPortalPage } from './pages/DriverPortalPage'
 import { DriverLoadWorkspacePage } from './pages/DriverLoadWorkspacePage'
+import { DriversPage } from './pages/DriversPage'
 import { ResetPasswordPage } from './pages/ResetPasswordPage'
 import { AccountAdministrationPage } from './pages/AccountAdministrationPage'
 
@@ -66,7 +67,7 @@ export default function App() {
           <Route path="loads/:id" element={<LoadDetailPage />} />
           <Route path="quotes" element={<QuotesPage />} />
           <Route path="customers" element={<RelationshipDirectoryPage />} />
-          <Route path="drivers" element={<PlaceholderPage />} />
+          <Route path="drivers" element={<DriversPage />} />
           <Route path="vehicles" element={<PlaceholderPage />} />
           <Route path="communications" element={<PlaceholderPage />} />
           <Route path="expenses" element={<PlaceholderPage />} />
