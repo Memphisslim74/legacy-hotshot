@@ -15,16 +15,21 @@ type Props = {
   submitLabel: string
   secondaryLabel?: string
   onSubmit: (values: LoadRequestInput, action: 'primary' | 'secondary') => Promise<void>
+  onValuesChange?: (values: LoadRequestInput) => void
   publicMode?: boolean
 }
 
-export function LoadRequestForm({ initialValues, submitting, submitLabel, secondaryLabel, onSubmit, publicMode = false }: Props) {
+export function LoadRequestForm({ initialValues, submitting, submitLabel, secondaryLabel, onSubmit, onValuesChange, publicMode = false }: Props) {
   const [values, setValues] = useState<LoadRequestInput>({ ...emptyLoadRequest, ...initialValues })
   const [action, setAction] = useState<'primary' | 'secondary'>('primary')
 
   useEffect(() => {
     setValues((current) => ({ ...current, ...initialValues }))
   }, [initialValues])
+
+  useEffect(() => {
+    onValuesChange?.(values)
+  }, [values, onValuesChange])
 
   const update = (key: keyof LoadRequestInput, value: string) => setValues((current) => ({ ...current, [key]: value }))
   const handleSubmit = async (event: FormEvent) => {
