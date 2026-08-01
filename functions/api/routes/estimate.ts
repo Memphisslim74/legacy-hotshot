@@ -70,7 +70,6 @@ export const onRequestPost = async ({ request, env }: Context): Promise<Response
         coordinates: [originCoordinates, destinationCoordinates],
         instructions: false,
         preference: 'recommended',
-        units: 'mi',
       }),
     })
 
