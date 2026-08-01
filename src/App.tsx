@@ -1,6 +1,7 @@
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router-dom'
 import { useAuth } from './auth/AuthContext'
 import { AppShell } from './components/AppShell'
+import { LoadDriverAssignmentDock } from './components/LoadDriverAssignmentDock'
 import { DashboardPage } from './pages/DashboardPage'
 import { LoginPage } from './pages/LoginPage'
 import { PlaceholderPage } from './pages/PlaceholderPage'
@@ -32,7 +33,7 @@ function ProtectedLayout() {
   if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />
   if (!user.setupComplete) return <Navigate to="/setup" replace />
   if (user.role === 'driver' && location.pathname === '/') return <Navigate to="/driver" replace />
-  return <AppShell><Outlet /></AppShell>
+  return <AppShell><Outlet /><LoadDriverAssignmentDock /></AppShell>
 }
 
 function OfficeOnly() {
