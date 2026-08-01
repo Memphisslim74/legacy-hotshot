@@ -1,0 +1,159 @@
+/* Second visual pass: readable operating scale for dashboard and administration workspaces. */
+
+/* Dashboard */
+.dispatch-overview { gap: 22px; }
+.dispatch-intro { align-items: center; padding: 8px 0 6px; }
+.dispatch-intro__label,
+.dispatch-section-head span { font-size: .68rem; }
+.dispatch-intro h2 { font-size: clamp(1.75rem, 2.35vw, 2.35rem); }
+.dispatch-intro p { max-width: 760px; font-size: .9rem; line-height: 1.55; }
+.dispatch-action { min-height: 42px; padding: 0 16px; font-size: .76rem; }
+.ops-kpi { min-height: 112px; padding: 18px 22px 16px; }
+.ops-kpi > span { font-size: .72rem; }
+.ops-kpi > strong { margin: 7px 0 4px; font-size: 1.85rem; }
+.ops-kpi > small { font-size: .68rem; }
+.dispatch-layout { grid-template-columns: minmax(0, 1fr) 390px; gap: 20px; }
+.dispatch-section-head { min-height: 68px; padding: 13px 18px 12px; }
+.dispatch-section-head--compact { min-height: 60px; padding: 11px 15px 10px; }
+.dispatch-section-head h3 { font-size: 1.02rem; }
+.dispatch-board__filters button { min-height: 34px; padding: 0 13px; font-size: .68rem; }
+.dispatch-table { min-width: 1040px; }
+.dispatch-table th { padding: 11px 14px; font-size: .61rem; }
+.dispatch-table td { padding: 16px 14px; font-size: .76rem; }
+.dispatch-table td > strong { font-size: .78rem; }
+.dispatch-table td > span,
+.dispatch-table td > small { font-size: .66rem; }
+.dispatch-load-id strong { font-size: .82rem !important; }
+.dispatch-row-action { width: 36px; height: 36px; }
+.exception-row { min-height: 76px; gap: 12px; padding: 11px 14px 11px 0; }
+.exception-row strong { font-size: .75rem; }
+.exception-row small { font-size: .65rem; }
+.route-brief__stops { padding: 18px 17px 6px; }
+.route-brief__stops strong { font-size: .8rem; }
+.route-brief__stops small { font-size: .62rem; }
+.route-brief__stops em { font-size: .66rem; }
+.route-brief__facts { margin: 14px 17px; }
+.route-brief__facts dt { font-size: .6rem; }
+.route-brief__facts dd { font-size: .71rem; }
+.route-brief > button { width: calc(100% - 34px); min-height: 40px; margin: 0 17px 17px; font-size: .7rem; }
+.capacity-day { min-height: 154px; padding: 16px 18px; }
+.capacity-day__counts span { font-size: .67rem; }
+.capacity-day__counts b { font-size: .8rem; }
+.capacity-day > small { font-size: .62rem; }
+
+/* Clients & Vendors */
+.relationship-v2 { gap: 20px; }
+.relationship-v2__head { padding: 28px 30px; }
+.relationship-v2__head > div > span { font-size: .68rem; }
+.relationship-v2__head h2 { font-size: 2rem; }
+.relationship-v2__head p { font-size: .9rem; line-height: 1.5; }
+.relationship-v2__head > button { height: 42px; padding: 0 16px; font-size: .76rem; }
+.relationship-v2__counts button { min-width: 126px; height: 48px; padding: 0 15px; font-size: .7rem; }
+.relationship-v2__counts strong { font-size: .9rem; }
+.relationship-v2__controls > label { height: 48px; padding: 0 13px; }
+.relationship-v2__controls input { font-size: .76rem; }
+.relationship-v2__grid { gap: 18px; }
+.relationship-v2-card header { grid-template-columns: 50px minmax(0, 1fr) auto; padding: 18px 19px; }
+.relationship-v2-card__avatar { width: 44px; height: 44px; font-size: .76rem; }
+.relationship-v2-card h3 { font-size: 1rem; }
+.relationship-v2-card header p { font-size: .69rem; }
+.relationship-v2-card__status,
+.relationship-v2-card__roles span { min-height: 26px; padding: 0 9px; font-size: .62rem; }
+.relationship-v2-card__roles { padding: 13px 19px; }
+.relationship-v2-card dl div { padding: 14px 19px; }
+.relationship-v2-card dt { font-size: .61rem; }
+.relationship-v2-card dd { font-size: .72rem; }
+.relationship-v2-card__note { min-height: 64px; padding: 15px 19px; font-size: .72rem; }
+.relationship-v2-card footer { min-height: 44px; }
+.relationship-v2-card footer button,
+.relationship-v2-card footer a { font-size: .66rem; }
+.relationship-v2-drawer > header { padding: 24px 28px; }
+.relationship-v2-drawer > header span { font-size: .65rem; }
+.relationship-v2-drawer > header h2 { font-size: 1.55rem; }
+.relationship-v2-drawer > header p { font-size: .75rem; }
+.relationship-v2-drawer > section { padding: 22px 28px; }
+.relationship-v2-drawer > section h3 { font-size: .82rem; }
+.relationship-v2-role-picker button { min-height: 35px; padding: 0 11px; font-size: .66rem; }
+.relationship-v2-form { gap: 15px; }
+.relationship-v2-form label { font-size: .67rem; }
+.relationship-v2-form input,
+.relationship-v2-form select,
+.relationship-v2-form textarea { min-height: 42px; padding: 10px 11px; font-size: .75rem; }
+.relationship-v2-drawer > footer { padding: 16px 28px; }
+.relationship-v2-drawer > footer button { min-height: 42px; padding: 0 16px; font-size: .72rem; }
+
+/* User Management */
+.account-admin { gap: 20px; }
+.account-admin__head { padding: 28px 30px; }
+.account-admin__head > div:first-child > span { font-size: .68rem; }
+.account-admin__head h2 { font-size: 2rem; }
+.account-admin__head p { font-size: .9rem; line-height: 1.5; }
+.account-admin__summary { grid-template-columns: repeat(4, 92px); }
+.account-admin__summary div { padding: 12px; }
+.account-admin__summary span { font-size: .6rem; }
+.account-admin__summary strong { font-size: 1.2rem; }
+.account-admin__workspace { grid-template-columns: 380px minmax(0, 1fr); min-height: 720px; }
+.account-admin__directory > header { gap: 11px; padding: 16px; }
+.account-admin__directory > header span { font-size: .64rem; }
+.account-admin__directory > header strong { font-size: .68rem; }
+.account-admin__directory label { height: 40px; padding: 0 10px; }
+.account-admin__directory input { font-size: .72rem; }
+.account-admin__directory select { height: 38px; font-size: .7rem; }
+.account-admin__directory > div > button { grid-template-columns: 44px minmax(0, 1fr) auto; gap: 12px; padding: 15px; }
+.account-admin__avatar { width: 40px; height: 40px; font-size: .7rem; }
+.account-admin__directory strong { font-size: .76rem; }
+.account-admin__directory small { font-size: .64rem; }
+.account-admin__directory i { font-size: .61rem; }
+.account-admin__directory b { min-height: 24px; padding: 0 8px; font-size: .59rem; }
+.account-admin__editor > form > header { padding: 22px 28px; }
+.account-admin__editor header span { font-size: .64rem; }
+.account-admin__editor header h3 { font-size: 1.35rem; }
+.account-admin__editor header p { font-size: .72rem; }
+.account-admin__editor header > b { min-height: 29px; padding: 0 10px; font-size: .64rem; }
+.account-admin__section { padding: 22px 28px; }
+.account-admin__section-head { margin-bottom: 17px; }
+.account-admin__section-head span { font-size: .62rem; }
+.account-admin__section-head h4 { font-size: .9rem; }
+.account-admin__section-head small,
+.account-admin__section-head button { font-size: .66rem; }
+.account-admin__form,
+.account-admin__passwords { gap: 15px; }
+.account-admin__form label,
+.account-admin__passwords label { font-size: .67rem; }
+.account-admin__form input,
+.account-admin__form select,
+.account-admin__passwords input { height: 42px; padding: 0 11px; font-size: .75rem; }
+.account-admin__metadata div { padding: 15px 17px; }
+.account-admin__metadata span { font-size: .61rem; }
+.account-admin__metadata strong { font-size: .72rem; }
+.account-admin__security-actions button { min-height: 40px; padding: 0 13px; font-size: .68rem; }
+.account-admin__security > p { font-size: .68rem; }
+.account-admin__editor > form > footer { padding: 16px 28px; }
+.account-admin__editor > form > footer span { font-size: .66rem; }
+.account-admin__editor > form > footer button { min-height: 42px; padding: 0 16px; font-size: .72rem; }
+
+@media (max-width: 1180px) {
+  .dispatch-layout { grid-template-columns: 1fr; }
+  .dispatch-sidecar { grid-template-columns: 1fr 1fr; }
+  .account-admin__workspace { grid-template-columns: 330px minmax(0, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .dispatch-sidecar { grid-template-columns: 1fr; }
+  .ops-kpi-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .ops-kpi:nth-child(2) { border-right: 0; }
+  .ops-kpi:nth-child(-n+2) { border-bottom: 1px solid var(--legacy-line); }
+  .relationship-v2__grid { grid-template-columns: 1fr; }
+  .account-admin__workspace { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 680px) {
+  .dispatch-intro { align-items: stretch; flex-direction: column; }
+  .dispatch-intro__actions { width: 100%; }
+  .dispatch-action { flex: 1; justify-content: center; }
+  .ops-kpi-strip { grid-template-columns: 1fr; }
+  .ops-kpi { border-right: 0; border-bottom: 1px solid var(--legacy-line); }
+  .relationship-v2__head,
+  .account-admin__head { padding: 22px 20px; }
+  .account-admin__summary { grid-template-columns: repeat(2, minmax(110px, 1fr)); width: 100%; }
+}
