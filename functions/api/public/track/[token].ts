@@ -16,6 +16,7 @@ const publicLoadFields = [
   'pickup_company', 'pickup_city', 'pickup_state', 'pickup_at',
   'delivery_company', 'delivery_city', 'delivery_state', 'delivery_at',
   'freight_description', 'current_eta', 'customer_visible_notes', 'tracking_visibility',
+  'loaded_miles', 'route_duration_seconds', 'route_calculated_at',
   'location_last_updated_at', 'location_last_latitude', 'location_last_longitude',
 ].join(',')
 
@@ -43,6 +44,9 @@ function demoTrackerResponse(token: string) {
       },
       freightDescription: second ? 'Skid-mounted pump equipment' : 'Industrial generator and support equipment',
       currentEta: deliveryAt,
+      loadedMiles: second ? 265 : 317.5,
+      routeDurationSeconds: second ? 14400 : 16920,
+      routeCalculatedAt: new Date(now - 86400000).toISOString(),
       customerNotes: second ? 'Driver assignment is being finalized.' : 'Freight is secure and moving on schedule. The next update will be posted near delivery.',
       driverFirstName: second ? null : 'Jared',
       trackingVisibility: 'city_state',
@@ -132,6 +136,9 @@ export const onRequestGet = async ({ env, params }: Context): Promise<Response> 
         delivery: { company: load.delivery_company || null, city: load.delivery_city, state: load.delivery_state, scheduledAt: load.delivery_at },
         freightDescription: load.freight_description,
         currentEta: load.current_eta,
+        loadedMiles: Number(load.loaded_miles || 0),
+        routeDurationSeconds: load.route_duration_seconds === null ? null : Number(load.route_duration_seconds),
+        routeCalculatedAt: load.route_calculated_at || null,
         customerNotes: load.customer_visible_notes || null,
         driverFirstName,
         trackingVisibility: visibility,
