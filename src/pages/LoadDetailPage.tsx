@@ -4,6 +4,7 @@ import { useAuth } from '../auth/AuthContext'
 import { Icon } from '../components/Icon'
 import { demoDriverLoad } from '../data/driverDemo'
 import { listLoads, updateLoadStatus } from '../lib/operations'
+import { formatDriveTime } from '../lib/routing'
 import type { LoadRecord, LoadStatus } from '../types'
 
 const statusLabels: Record<LoadStatus, string> = {
@@ -46,11 +47,12 @@ function sampleLoadForId(id?: string): LoadRecord {
       estimated_fuel: 310,
       loaded_miles: 265,
       deadhead_miles: 44,
+      route_duration_seconds: 14400,
       tracking_token: 'demo-track-2',
       customers: { company_name: 'High Plains Fabrication' },
     }
   }
-  return { ...demoDriverLoad, id: id || 'load-1', load_number: 'LH-1028' }
+  return { ...demoDriverLoad, id: id || 'load-1', load_number: 'LH-1028', route_duration_seconds: 16920 }
 }
 
 export function LoadDetailPage() {
@@ -153,6 +155,7 @@ export function LoadDetailPage() {
       <section className="shipment-status-strip">
         <div><span>Operating status</span><select value={load.status} disabled={saving} onChange={(event) => changeStatus(event.target.value as LoadStatus)}>{Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></div>
         <div><span>Assigned driver</span><strong>{load.assigned_driver?.full_name || (load.assigned_driver_id ? 'Assigned driver' : 'Unassigned')}</strong></div>
+        <div><span>Route estimate</span><strong>{Number(load.loaded_miles || 0).toLocaleString()} mi · {formatDriveTime(load.route_duration_seconds)}</strong></div>
         <div><span>Current ETA</span><strong>{load.current_eta ? new Date(load.current_eta).toLocaleString() : 'Not set'}</strong></div>
         <div><span>Tracker visibility</span><strong>{load.tracking_visibility.replaceAll('_', ' ')}</strong></div>
       </section>
@@ -189,7 +192,9 @@ export function LoadDetailPage() {
               <div><dt>Equipment</dt><dd>{load.equipment_requirements || 'Not specified'}</dd></div>
               <div><dt>Securement</dt><dd>{load.securement_requirements || 'Not specified'}</dd></div>
               <div><dt>Loaded miles</dt><dd>{Number(load.loaded_miles || 0).toLocaleString()}</dd></div>
+              <div><dt>Estimated drive time</dt><dd>{formatDriveTime(load.route_duration_seconds)}</dd></div>
               <div><dt>Deadhead miles</dt><dd>{Number(load.deadhead_miles || 0).toLocaleString()}</dd></div>
+              <div><dt>Route calculated</dt><dd>{load.route_calculated_at ? new Date(load.route_calculated_at).toLocaleString() : 'Not calculated'}</dd></div>
             </dl>
           </section>
         </main>
