@@ -136,7 +136,8 @@ export function DashboardPage() {
         load.pickup_at ? { load, type: 'Pickup' as const, at: load.pickup_at, location: formatLocation(load.pickup_city, load.pickup_state), company: load.pickup_company } : null,
         load.delivery_at ? { load, type: 'Delivery' as const, at: load.delivery_at, location: formatLocation(load.delivery_city, load.delivery_state), company: load.delivery_company } : null,
       ])
-      .filter((item): item is NonNullable<typeof item> => Boolean(item) && new Date(item.at).getTime() >= now)
+      .filter((item): item is NonNullable<typeof item> => item !== null)
+      .filter((item) => new Date(item.at).getTime() >= now)
       .sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime())[0] || null
   }, [loads, showingSampleData])
 
