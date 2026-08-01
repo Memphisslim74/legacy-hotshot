@@ -8,6 +8,7 @@ export interface AdminEnv {
   RESEND_API_KEY?: string
   RESEND_FROM_EMAIL?: string
   RESEND_FROM_NAME?: string
+  GOOGLE_MAPS_ROUTES_API_KEY?: string
 }
 
 type ProfileRow = {
@@ -67,6 +68,28 @@ export async function requireOwner(request: Request, env: AdminEnv) {
   }
   if (profile.role !== 'owner' || !profile.company_id) {
     throw new Response(JSON.stringify({ error: 'Only an owner can manage user accounts.' }), { status: 403 })
+  }
+
+  return { admin, authUser: authData.user, profile }
+}
+
+export async function requireCompanyUser(request: Request, env: AdminEnv) {
+  const authorization = request.headers.get('Authorization') || ''
+  const token = authorization.startsWith('Bearer ') ? authorization.slice(7).trim() : ''
+  if (!token) throw new Response(JSON.stringify({ error: 'Authentication required.' }), { status: 401 })
+
+  const admin = createAdminClient(env)
+  const { data: authData, error: authError } = await admin.auth.getUser(token)
+  if (authError || !authData.user) throw new Response(JSON.stringify({ error: 'Your session is invalid or expired.' }), { status: 401 })
+
+  const { data: profile, error: profileError } = await admin
+    .from('profiles')
+    .select('id, company_id, full_name, role, phone, setup_complete, is_active, created_at')
+    .eq('id', authData.user.id)
+    .single<ProfileRow>()
+
+  if (profileError || !profile || !profile.is_active || !profile.company_id) {
+    throw new Response(JSON.stringify({ error: 'Your company profile is inactive or unavailable.' }), { status: 403 })
   }
 
   return { admin, authUser: authData.user, profile }
