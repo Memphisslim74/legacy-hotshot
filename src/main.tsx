@@ -29,6 +29,7 @@ import './overview-gap-fix.css'
 import './dashboard-column-containment.css'
 import './public-quote.css'
 import './driver-dispatch.css'
+import './load-assignment-dock.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
