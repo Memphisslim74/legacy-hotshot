@@ -7,41 +7,60 @@
   outline-offset: -2px;
 }
 
+.capacity-day {
+  min-height: 0;
+  height: auto;
+  overflow: visible;
+}
+
 .capacity-day__loads {
-  display: grid;
-  gap: 0.45rem;
+  position: static;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  width: 100%;
   margin-top: 0.75rem;
 }
 
 .capacity-day__loads > button {
+  position: static;
+  inset: auto;
   width: 100%;
+  min-width: 0;
+  min-height: 58px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: center;
+  align-items: start;
   gap: 0.55rem;
+  margin: 0;
   padding: 0.65rem 0.7rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid #d8dde2;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.04);
+  background: #f7f8f9;
   color: inherit;
   text-align: left;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .capacity-day__loads > button:hover,
 .capacity-day__loads > button:focus-visible {
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: #eef1f3;
+  border-color: #aeb8c1;
+  outline: none;
 }
 
 .capacity-day__loads > button span {
   display: grid;
   min-width: 0;
+  gap: 0.12rem;
 }
 
 .capacity-day__loads > button strong,
 .capacity-day__loads > button small,
 .capacity-day__loads > button em {
+  display: block;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -55,4 +74,18 @@
 
 .capacity-day__loads > button em {
   font-style: normal;
+}
+
+.capacity-timeline {
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .capacity-day__loads > button {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .capacity-day__loads > button em {
+    grid-column: 1 / -1;
+  }
 }
