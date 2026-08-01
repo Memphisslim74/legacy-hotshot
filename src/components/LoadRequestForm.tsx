@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import type { LoadRequestInput } from '../types'
 
@@ -21,6 +21,10 @@ type Props = {
 export function LoadRequestForm({ initialValues, submitting, submitLabel, secondaryLabel, onSubmit, publicMode = false }: Props) {
   const [values, setValues] = useState<LoadRequestInput>({ ...emptyLoadRequest, ...initialValues })
   const [action, setAction] = useState<'primary' | 'secondary'>('primary')
+
+  useEffect(() => {
+    setValues((current) => ({ ...current, ...initialValues }))
+  }, [initialValues])
 
   const update = (key: keyof LoadRequestInput, value: string) => setValues((current) => ({ ...current, [key]: value }))
   const handleSubmit = async (event: FormEvent) => {
