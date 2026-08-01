@@ -80,6 +80,10 @@ export function NewLoadPage() {
   const [newBusiness, setNewBusiness] = useState<BusinessRelationshipInput>(emptyBusiness)
   const [formValues, setFormValues] = useState<LoadRequestInput>({ ...emptyLoadRequest, requesterName: user?.fullName || '', requesterEmail: user?.email || '' })
   const [route, setRoute] = useState<RouteEstimate | null>(null)
+  const [routeMode, setRouteMode] = useState<'automatic' | 'manual'>('automatic')
+  const [manualMiles, setManualMiles] = useState('')
+  const [manualHours, setManualHours] = useState('')
+  const [manualMinutes, setManualMinutes] = useState('')
   const [calculatingRoute, setCalculatingRoute] = useState(false)
   const [routeError, setRouteError] = useState('')
 
@@ -136,12 +140,29 @@ export function NewLoadPage() {
       setRoute(result)
       return result
     } catch (caught) {
-      setRouteError(caught instanceof Error ? caught.message : 'Unable to calculate this route.')
+      setRouteError(`${caught instanceof Error ? caught.message : 'Unable to calculate this route.'} Enter the route manually to continue.`)
+      setRouteMode('manual')
       return null
     } finally {
       setCalculatingRoute(false)
     }
   }, [formValues, user])
+
+  const manualRouteEstimate = useMemo<RouteEstimate | null>(() => {
+    const miles = Number(manualMiles)
+    const hours = Number(manualHours || 0)
+    const minutes = Number(manualMinutes || 0)
+    if (!Number.isFinite(miles) || miles <= 0 || !Number.isFinite(hours) || hours < 0 || !Number.isFinite(minutes) || minutes < 0 || minutes > 59) return null
+    const durationSeconds = Math.round((hours * 60 + minutes) * 60)
+    if (durationSeconds <= 0) return null
+    return {
+      distanceMeters: Math.round(miles * 1609.344),
+      durationSeconds,
+      loadedMiles: Math.round(miles * 10) / 10,
+      provider: 'manual',
+      calculatedAt: new Date().toISOString(),
+    }
+  }, [manualMiles, manualHours, manualMinutes])
 
   const ensureBusiness = async () => {
     if (!user?.companyId || user.demo) return selectedBusinessId || undefined
@@ -171,8 +192,12 @@ export function NewLoadPage() {
       } else {
         if (!user.companyId) throw new Error('Complete company setup before creating a booked load.')
         const customerId = await ensureBusiness()
-        const routeEstimate = route || await calculateRoute(values)
-        if (!routeEstimate) throw new Error('Calculate the route before booking this load.')
+        const routeEstimate = routeMode === 'manual' ? manualRouteEstimate : route || await calculateRoute(values)
+        if (!routeEstimate) {
+          throw new Error(routeMode === 'manual'
+            ? 'Enter valid loaded miles and drive time before booking this load.'
+            : 'Calculate the route or switch to manual entry before booking this load.')
+        }
         const load = await createBookedLoad(user.companyId, user.id, values, customerId, routeEstimate)
         setSuccess(`${load.load_number} was booked with ${routeEstimate.loadedMiles.toLocaleString()} loaded miles and ${formatDriveTime(routeEstimate.durationSeconds)} drive time.`)
       }
@@ -202,7 +227,7 @@ export function NewLoadPage() {
         <aside className="load-intake-index">
           <div className="load-intake-index__title"><span>INTAKE WORKFLOW</span><strong>5 operating sections</strong></div>
           <ol>{intakeSections.map((section, index) => <li key={section.label}><span>{index + 1}</span><div><strong>{section.label}</strong><small>{section.detail}</small></div></li>)}</ol>
-          <div className="load-intake-index__help"><Icon name="alert" size={17} /><p>Loaded miles and drive time are calculated from the complete pickup and delivery addresses.</p></div>
+          <div className="load-intake-index__help"><Icon name="alert" size={17} /><p>Loaded miles and drive time can be calculated automatically or entered manually.</p></div>
         </aside>
 
         <main className="load-intake-document">
@@ -240,8 +265,27 @@ export function NewLoadPage() {
           />
 
           <section className="load-route-estimate">
-            <div><span>ROUTE CALCULATION</span><h3>Loaded mileage and estimated drive time</h3><p>Calculated from the exact pickup and delivery addresses and saved with the load.</p></div>
-            {route ? <dl><div><dt>Loaded miles</dt><dd>{route.loadedMiles.toLocaleString()}</dd></div><div><dt>Drive time</dt><dd>{formatDriveTime(route.durationSeconds)}</dd></div><div><dt>Calculated</dt><dd>{new Date(route.calculatedAt).toLocaleString()}</dd></div></dl> : <button type="button" disabled={calculatingRoute} onClick={() => calculateRoute()}>{calculatingRoute ? 'Calculating…' : 'Calculate route'}</button>}
+            <div>
+              <span>ROUTE CALCULATION</span>
+              <h3>Loaded mileage and estimated drive time</h3>
+              <p>Use the free route estimate or enter confirmed route figures manually. The selected values are saved with the load.</p>
+              <div className="load-business-source__mode">
+                <button type="button" className={routeMode === 'automatic' ? 'active' : ''} onClick={() => setRouteMode('automatic')}>Automatic</button>
+                <button type="button" className={routeMode === 'manual' ? 'active' : ''} onClick={() => setRouteMode('manual')}>Manual entry</button>
+              </div>
+            </div>
+
+            {routeMode === 'automatic' ? (
+              route ? <dl><div><dt>Loaded miles</dt><dd>{route.loadedMiles.toLocaleString()}</dd></div><div><dt>Drive time</dt><dd>{formatDriveTime(route.durationSeconds)}</dd></div><div><dt>Source</dt><dd>OpenRouteService</dd></div><div><dt>Calculated</dt><dd>{new Date(route.calculatedAt).toLocaleString()}</dd></div></dl>
+                : <button type="button" disabled={calculatingRoute} onClick={() => calculateRoute()}>{calculatingRoute ? 'Calculating…' : 'Calculate route'}</button>
+            ) : (
+              <div className="load-business-source__new">
+                <label>Loaded miles<input inputMode="decimal" value={manualMiles} onChange={(event) => setManualMiles(event.target.value)} placeholder="317.5" /></label>
+                <label>Drive hours<input inputMode="numeric" value={manualHours} onChange={(event) => setManualHours(event.target.value)} placeholder="5" /></label>
+                <label>Drive minutes<input inputMode="numeric" value={manualMinutes} onChange={(event) => setManualMinutes(event.target.value)} placeholder="15" /></label>
+                <small>{manualRouteEstimate ? `${manualRouteEstimate.loadedMiles.toLocaleString()} miles · ${formatDriveTime(manualRouteEstimate.durationSeconds)} · Manual source` : 'Enter miles and a valid drive time.'}</small>
+              </div>
+            )}
             {routeError && <small>{routeError}</small>}
           </section>
         </main>
