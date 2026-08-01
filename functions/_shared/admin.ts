@@ -8,7 +8,7 @@ export interface AdminEnv {
   RESEND_API_KEY?: string
   RESEND_FROM_EMAIL?: string
   RESEND_FROM_NAME?: string
-  GOOGLE_MAPS_ROUTES_API_KEY?: string
+  OPENROUTESERVICE_API_KEY?: string
 }
 
 type ProfileRow = {
