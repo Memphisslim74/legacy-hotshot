@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import type { BusinessRelationshipType, Customer, DocumentRecord, LoadRecord, LoadRequestInput, LoadRequestRecord } from '../types'
+import type { RouteEstimate } from './routing'
 
 const requireClient = () => {
   if (!supabase) throw new Error('Supabase is not connected.')
@@ -122,7 +123,13 @@ export async function submitPublicLoadRequest(values: LoadRequestInput) {
   return result as { request_number: string; public_token: string }
 }
 
-export async function createBookedLoad(companyId: string, userId: string, values: LoadRequestInput, customerId?: string) {
+export async function createBookedLoad(
+  companyId: string,
+  userId: string,
+  values: LoadRequestInput,
+  customerId?: string,
+  route?: RouteEstimate | null,
+) {
   const suffix = Date.now().toString().slice(-6)
   const pickupAt = values.pickupDate ? `${values.pickupDate}T${normalizeTime(values.pickupTimeWindow)}` : null
   const deliveryAt = values.deliveryDate ? `${values.deliveryDate}T${normalizeTime(values.deliveryTimeWindow)}` : null
@@ -153,6 +160,11 @@ export async function createBookedLoad(companyId: string, userId: string, values
     dimensions: values.dimensions.trim() || null,
     equipment_requirements: values.equipmentRequirements.trim() || null,
     securement_requirements: values.securementRequirements.trim() || null,
+    loaded_miles: route?.loadedMiles ?? 0,
+    route_distance_meters: route?.distanceMeters ?? null,
+    route_duration_seconds: route?.durationSeconds ?? null,
+    route_calculated_at: route?.calculatedAt ?? null,
+    route_provider: route?.provider ?? null,
     current_eta: deliveryAt,
     created_by: userId,
   }).select('*').single()
