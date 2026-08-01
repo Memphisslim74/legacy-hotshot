@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
 import { Icon } from '../components/Icon'
 import { listLoadRequests } from '../lib/operations'
@@ -7,7 +8,7 @@ import type { QuoteRecord } from '../lib/quotes'
 import type { LoadRequestRecord } from '../types'
 
 const demoQuotes: QuoteRecord[] = [
-  { id: 'quote-1', quote_number: 'LHQ-1003', load_request_id: 'request-1', estimated_mileage: 285, base_rate: 1950, fuel_surcharge: 225, tarping_charge: 0, additional_services: 0, total_amount: 2175, detention_terms: '2 hours free, then $95/hour', payment_terms: 'Net 30', expires_at: new Date(Date.now() + 172800000).toISOString(), notes: null, status: 'sent', public_token: 'demo-quote-token', sent_at: new Date().toISOString(), quote_version: 1, created_at: new Date().toISOString(), load_requests: { request_number: 'LHR-1003', requester_company: 'High Plains Fabrication', requester_name: 'Kara Ellis', requester_email: 'shipping@highplainsfab.com', pickup_city: 'Abilene', pickup_state: 'TX', delivery_city: 'Odessa', delivery_state: 'TX', freight_description: 'Skid-mounted pump equipment' } },
+  { id: 'quote-1', quote_number: 'LHQ-1003', load_request_id: 'request-1', estimated_mileage: 285, base_rate: 1950, fuel_surcharge: 225, tarping_charge: 0, additional_services: 0, total_amount: 2175, detention_terms: '2 hours free, then $95/hour', payment_terms: 'Net 30', expires_at: new Date(Date.now() + 172800000).toISOString(), notes: null, status: 'sent', public_token: 'demo-quote-token', sent_at: new Date().toISOString(), quote_version: 1, converted_load_id: null, created_at: new Date().toISOString(), load_requests: { request_number: 'LHR-1003', requester_company: 'High Plains Fabrication', requester_name: 'Kara Ellis', requester_email: 'shipping@highplainsfab.com', pickup_city: 'Abilene', pickup_state: 'TX', delivery_city: 'Odessa', delivery_state: 'TX', freight_description: 'Skid-mounted pump equipment' }, loads: null },
 ]
 
 const quoteStatuses: QuoteRecord['status'][] = ['draft', 'sent', 'approved', 'declined', 'expired', 'converted']
@@ -15,6 +16,7 @@ const statusLabel = (value: QuoteRecord['status']) => value.charAt(0).toUpperCas
 
 export function QuotesPage() {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [quotes, setQuotes] = useState<QuoteRecord[]>([])
   const [requests, setRequests] = useState<LoadRequestRecord[]>([])
   const [search, setSearch] = useState('')
@@ -50,7 +52,7 @@ export function QuotesPage() {
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
     return quotes.filter((quote) => {
-      const matchesSearch = !query || [quote.quote_number, quote.load_requests?.request_number, quote.load_requests?.requester_company, quote.load_requests?.requester_name, quote.load_requests?.pickup_city, quote.load_requests?.delivery_city].some((value) => value?.toLowerCase().includes(query))
+      const matchesSearch = !query || [quote.quote_number, quote.loads?.load_number, quote.load_requests?.request_number, quote.load_requests?.requester_company, quote.load_requests?.requester_name, quote.load_requests?.pickup_city, quote.load_requests?.delivery_city].some((value) => value?.toLowerCase().includes(query))
       return matchesSearch && (statusFilter === 'all' || quote.status === statusFilter)
     })
   }, [quotes, search, statusFilter])
@@ -58,7 +60,7 @@ export function QuotesPage() {
   const metrics = useMemo(() => ({
     open: quotes.filter((quote) => ['draft', 'sent'].includes(quote.status)).length,
     approved: quotes.filter((quote) => quote.status === 'approved').length,
-    converted: quotes.filter((quote) => quote.status === 'converted').length,
+    booked: quotes.filter((quote) => Boolean(quote.converted_load_id)).length,
     pipeline: quotes.filter((quote) => !['declined', 'expired'].includes(quote.status)).reduce((sum, quote) => sum + quote.total_amount, 0),
   }), [quotes])
 
@@ -72,7 +74,7 @@ export function QuotesPage() {
     try {
       const request = requests.find((item) => item.id === values.loadRequestId)
       const created = !user.companyId || user.demo
-        ? { ...demoQuotes[0], id: `demo-${Date.now()}`, quote_number: `LHQ-${Date.now().toString().slice(-4)}`, total_amount: total, base_rate: Number(values.baseRate || 0), fuel_surcharge: Number(values.fuelSurcharge || 0), tarping_charge: Number(values.tarpingCharge || 0), additional_services: Number(values.additionalServices || 0), status: 'draft', sent_at: null, load_requests: request ? { request_number: request.request_number, requester_company: request.requester_company, requester_name: request.requester_name, requester_email: request.requester_email, pickup_city: request.pickup_city, pickup_state: request.pickup_state, delivery_city: request.delivery_city, delivery_state: request.delivery_state, freight_description: request.freight_description } : null } as QuoteRecord
+        ? { ...demoQuotes[0], id: `demo-${Date.now()}`, quote_number: `LHQ-${Date.now().toString().slice(-4)}`, total_amount: total, base_rate: Number(values.baseRate || 0), fuel_surcharge: Number(values.fuelSurcharge || 0), tarping_charge: Number(values.tarpingCharge || 0), additional_services: Number(values.additionalServices || 0), status: 'draft', sent_at: null, converted_load_id: null, loads: null, load_requests: request ? { request_number: request.request_number, requester_company: request.requester_company, requester_name: request.requester_name, requester_email: request.requester_email, pickup_city: request.pickup_city, pickup_state: request.pickup_state, delivery_city: request.delivery_city, delivery_state: request.delivery_state, freight_description: request.freight_description } : null } as QuoteRecord
         : await createQuote(user.companyId, user.id, values)
       setQuotes((current) => [created, ...current.filter((quote) => !quote.id.startsWith('quote-'))])
       setShowingSampleData(false)
@@ -118,11 +120,15 @@ export function QuotesPage() {
   }
 
   const previewQuote = (quote: QuoteRecord) => window.open(`/quote/${encodeURIComponent(quote.public_token)}`, '_blank', 'noopener,noreferrer')
+  const openBookedLoad = (quote: QuoteRecord) => {
+    const loadId = quote.converted_load_id || quote.loads?.id
+    if (loadId) navigate(`/loads/${loadId}`)
+  }
 
   return (
     <div className="pricing-queue-page">
       <header className="record-page-head">
-        <div><span>COMMERCIAL OPERATIONS</span><h2>Pricing Queue</h2><p>Prepare, email, approve, and convert shipment pricing from one register.</p></div>
+        <div><span>COMMERCIAL OPERATIONS</span><h2>Pricing Queue</h2><p>Prepare, email, approve, and hand accepted pricing directly into dispatch.</p></div>
         <button className="record-primary-action" onClick={() => setShowForm(true)}><Icon name="plus" size={16} /> New Quote</button>
       </header>
 
@@ -131,11 +137,11 @@ export function QuotesPage() {
       {showingSampleData && <div className="sample-data-banner"><Icon name="alert" size={16} /><span><strong>Sample Data — Preview Only</strong> No real quotes exist yet. Sample emails are not sent.</span></div>}
 
       <section className="pricing-metric-strip">
-        <div><span>Open pricing</span><strong>{metrics.open}</strong></div><div><span>Approved</span><strong>{metrics.approved}</strong></div><div><span>Converted</span><strong>{metrics.converted}</strong></div><div><span>Active pipeline</span><strong>${metrics.pipeline.toLocaleString()}</strong></div>
+        <div><span>Open pricing</span><strong>{metrics.open}</strong></div><div><span>Approved</span><strong>{metrics.approved}</strong></div><div><span>Booked loads</span><strong>{metrics.booked}</strong></div><div><span>Active pipeline</span><strong>${metrics.pipeline.toLocaleString()}</strong></div>
       </section>
 
       <section className="record-filterbar">
-        <label><Icon name="search" size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search quote, request, customer, or route" /></label>
+        <label><Icon name="search" size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search quote, booked load, customer, or route" /></label>
         <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as typeof statusFilter)}><option value="all">All statuses</option>{quoteStatuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select>
         <span>{filtered.length} pricing records</span>
       </section>
@@ -144,12 +150,12 @@ export function QuotesPage() {
         <div className="pricing-register__head"><span>Quote</span><span>Customer & freight</span><span>Route</span><span>Commercials</span><span>Status</span><span>Customer action</span></div>
         {filtered.map((quote) => (
           <article key={quote.id}>
-            <div><strong>{quote.quote_number}</strong><small>{quote.load_requests?.request_number || 'Direct quote'} · v{quote.quote_version || 1}</small></div>
+            <div><strong>{quote.quote_number}</strong><small>{quote.load_requests?.request_number || 'Direct quote'} · v{quote.quote_version || 1}</small>{quote.loads?.load_number && <small className="quote-booked-reference">Booked as {quote.loads.load_number}</small>}</div>
             <div><strong>{quote.load_requests?.requester_company || quote.load_requests?.requester_name || 'Customer quote'}</strong><small>{quote.load_requests?.requester_email}</small></div>
             <div className="pricing-route"><strong>{quote.load_requests?.pickup_city}, {quote.load_requests?.pickup_state}</strong><Icon name="arrow" size={13} /><strong>{quote.load_requests?.delivery_city}, {quote.load_requests?.delivery_state}</strong><small>{quote.estimated_mileage ? `${quote.estimated_mileage} estimated miles` : 'Mileage pending'}</small></div>
             <div className="pricing-commercials"><strong>${quote.total_amount.toLocaleString()}</strong><small>{quote.expires_at ? `Expires ${new Date(quote.expires_at).toLocaleDateString()}` : quote.payment_terms}</small></div>
-            <div><select className={`quote-status quote-status--${quote.status}`} value={quote.status} onChange={(event) => changeStatus(quote, event.target.value as QuoteRecord['status'])}>{quoteStatuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select>{quote.accepted_by_name && <small>Accepted by {quote.accepted_by_name}</small>}</div>
-            <div className="quote-customer-actions"><button onClick={() => previewQuote(quote)}>View</button><button className="quote-send-button" disabled={sendingId === quote.id || quote.status === 'approved' || quote.status === 'converted'} onClick={() => sendQuote(quote)}>{sendingId === quote.id ? 'Sending…' : quote.sent_at ? 'Resend Quote' : 'Send Quote'}</button>{quote.sent_at && <small>Sent {new Date(quote.sent_at).toLocaleString()}</small>}</div>
+            <div><select className={`quote-status quote-status--${quote.status}`} value={quote.status} onChange={(event) => changeStatus(quote, event.target.value as QuoteRecord['status'])}>{quoteStatuses.map((status) => <option key={status} value={status}>{statusLabel(status)}</option>)}</select>{quote.accepted_by_name && <small>Accepted by {quote.accepted_by_name}</small>}{quote.accepted_at && <small>{new Date(quote.accepted_at).toLocaleString()}</small>}</div>
+            <div className="quote-customer-actions"><button onClick={() => previewQuote(quote)}>View Quote</button>{quote.converted_load_id || quote.loads?.id ? <button className="quote-send-button" onClick={() => openBookedLoad(quote)}>Open {quote.loads?.load_number || 'Booked Load'}</button> : <button className="quote-send-button" disabled={sendingId === quote.id || quote.status === 'approved' || quote.status === 'converted'} onClick={() => sendQuote(quote)}>{sendingId === quote.id ? 'Sending…' : quote.sent_at ? 'Resend Quote' : 'Send Quote'}</button>}{quote.sent_at && !quote.converted_load_id && <small>Sent {new Date(quote.sent_at).toLocaleString()}</small>}</div>
           </article>
         ))}
         {!filtered.length && <div className="record-empty">No pricing records match the current filters.</div>}
