@@ -25,6 +25,7 @@ import './visual-second-pass.css'
 import './core-workspace-polish.css'
 import './relationship-load-workflow.css'
 import './clickable-schedule-loads.css'
+import './overview-gap-fix.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
