@@ -16,6 +16,12 @@ export type QuoteRecord = {
   notes: string | null
   status: 'draft' | 'sent' | 'approved' | 'declined' | 'expired' | 'converted'
   public_token: string
+  sent_at?: string | null
+  accepted_by_name?: string | null
+  accepted_at?: string | null
+  accepted_quote_amount?: number | null
+  accepted_quote_version?: number | null
+  quote_version?: number
   created_at: string
   load_requests?: {
     request_number: string
@@ -79,6 +85,21 @@ export async function createQuote(companyId: string, userId: string, values: {
 export async function updateQuoteStatus(quoteId: string, status: QuoteRecord['status']) {
   const { error } = await requireClient().from('quotes').update({ status }).eq('id', quoteId)
   if (error) throw error
+}
+
+export async function sendQuoteEmail(quoteId: string) {
+  const { data: sessionData, error: sessionError } = await requireClient().auth.getSession()
+  if (sessionError) throw sessionError
+  const accessToken = sessionData.session?.access_token
+  if (!accessToken) throw new Error('Your session has expired. Sign in again before sending the quote.')
+
+  const response = await fetch(`/api/quotes/${encodeURIComponent(quoteId)}/send`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, Accept: 'application/json' },
+  })
+  const payload = await response.json() as { sent?: boolean; recipient?: string; quoteUrl?: string; error?: string }
+  if (!response.ok) throw new Error(payload.error || 'Unable to send the quote email.')
+  return payload
 }
 
 function numberOrNull(value: string) {
