@@ -8,6 +8,7 @@ export interface AdminEnv {
   RESEND_API_KEY?: string
   RESEND_FROM_EMAIL?: string
   RESEND_FROM_NAME?: string
+  QUOTE_APPROVAL_NOTIFY_EMAIL?: string
   OPENROUTESERVICE_API_KEY?: string
 }
 
