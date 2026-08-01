@@ -27,6 +27,7 @@ import './relationship-load-workflow.css'
 import './clickable-schedule-loads.css'
 import './overview-gap-fix.css'
 import './dashboard-column-containment.css'
+import './public-quote.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
