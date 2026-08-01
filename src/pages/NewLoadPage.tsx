@@ -30,6 +30,43 @@ const completeAddress = (values: LoadRequestInput, type: 'pickup' | 'delivery') 
   return parts.map((part) => part.trim()).filter(Boolean).join(', ')
 }
 
+function relationshipPrefill(business: Customer, base: Partial<LoadRequestInput>): Partial<LoadRequestInput> {
+  const requester = {
+    ...base,
+    requesterCompany: business.company_name,
+    requesterName: business.primary_contact || base.requesterName || '',
+    requesterEmail: business.email || base.requesterEmail || '',
+    requesterPhone: business.phone || '',
+  }
+
+  const isReceiver = business.relationship_types.includes('receiver')
+    && !business.relationship_types.some((role) => ['customer', 'broker', 'shipper', 'vendor'].includes(role))
+
+  if (isReceiver) {
+    return {
+      ...requester,
+      deliveryCompany: business.company_name,
+      deliveryAddress: business.address_line_1 || '',
+      deliveryCity: business.city || '',
+      deliveryState: business.state || '',
+      deliveryPostalCode: business.postal_code || '',
+      deliveryContact: business.primary_contact || '',
+      deliveryPhone: business.phone || '',
+    }
+  }
+
+  return {
+    ...requester,
+    pickupCompany: business.company_name,
+    pickupAddress: business.address_line_1 || '',
+    pickupCity: business.city || '',
+    pickupState: business.state || '',
+    pickupPostalCode: business.postal_code || '',
+    pickupContact: business.primary_contact || '',
+    pickupPhone: business.phone || '',
+  }
+}
+
 export function NewLoadPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -75,13 +112,7 @@ export function NewLoadPage() {
       }
     }
     if (!selectedBusiness) return base
-    return {
-      ...base,
-      requesterCompany: selectedBusiness.company_name,
-      requesterName: selectedBusiness.primary_contact || base.requesterName,
-      requesterEmail: selectedBusiness.email || base.requesterEmail,
-      requesterPhone: selectedBusiness.phone || '',
-    }
+    return relationshipPrefill(selectedBusiness, base)
   }, [businessMode, newBusiness, selectedBusiness, user])
 
   useEffect(() => {
@@ -186,6 +217,7 @@ export function NewLoadPage() {
               <div className="load-business-source__existing">
                 <label>Business<select value={selectedBusinessId} onChange={(event) => setSelectedBusinessId(event.target.value)}><option value="">Select a business</option>{businesses.map((business) => <option key={business.id} value={business.id}>{business.company_name} · {business.relationship_types.join(', ')}</option>)}</select></label>
                 <button type="button" onClick={() => navigate('/customers')}>Open directory</button>
+                {selectedBusiness && <small>{selectedBusiness.company_name} profile information has been prefilled below and can be adjusted for this load.</small>}
               </div>
             ) : (
               <div className="load-business-source__new">
