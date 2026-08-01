@@ -145,6 +145,10 @@ export type LoadRecord = {
   additional_expenses: number
   loaded_miles: number
   deadhead_miles: number
+  route_distance_meters?: number | null
+  route_duration_seconds?: number | null
+  route_calculated_at?: string | null
+  route_provider?: string | null
   current_eta: string | null
   tracking_token: string
   tracking_visibility: TrackingVisibility
@@ -258,21 +262,9 @@ export type DriverTimeEventType =
 export type DriverTimeEvent = {
   id: string
   load_id: string
-  driver_id: string
   event_type: DriverTimeEventType
   occurred_at: string
-  notes: string | null
   latitude: number | null
   longitude: number | null
-}
-
-export type LocationSession = {
-  id: string
-  load_id: string
-  driver_id: string
-  status: 'active' | 'stopped' | 'completed'
-  visibility: TrackingVisibility
-  started_at: string
-  ended_at: string | null
-  last_location_at: string | null
+  notes: string | null
 }
