@@ -262,9 +262,21 @@ export type DriverTimeEventType =
 export type DriverTimeEvent = {
   id: string
   load_id: string
+  driver_id: string
   event_type: DriverTimeEventType
   occurred_at: string
+  notes: string | null
   latitude: number | null
   longitude: number | null
-  notes: string | null
+}
+
+export type LocationSession = {
+  id: string
+  load_id: string
+  driver_id: string
+  status: 'active' | 'stopped' | 'completed'
+  visibility: TrackingVisibility
+  started_at: string
+  ended_at: string | null
+  last_location_at: string | null
 }
