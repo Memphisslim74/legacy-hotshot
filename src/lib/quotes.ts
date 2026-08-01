@@ -22,6 +22,7 @@ export type QuoteRecord = {
   accepted_quote_amount?: number | null
   accepted_quote_version?: number | null
   quote_version?: number
+  converted_load_id?: string | null
   created_at: string
   load_requests?: {
     request_number: string
@@ -34,6 +35,11 @@ export type QuoteRecord = {
     delivery_state: string
     freight_description: string
   } | null
+  loads?: {
+    id: string
+    load_number: string
+    status: string
+  } | null
 }
 
 const requireClient = () => {
@@ -41,12 +47,14 @@ const requireClient = () => {
   return supabase
 }
 
+const quoteSelect = '*, load_requests(request_number, requester_company, requester_name, requester_email, pickup_city, pickup_state, delivery_city, delivery_state, freight_description), loads!quotes_converted_load_id_fkey(id, load_number, status)'
+
 export async function listQuotes(companyId: string): Promise<QuoteRecord[]> {
   const { data, error } = await requireClient().from('quotes')
-    .select('*, load_requests(request_number, requester_company, requester_name, requester_email, pickup_city, pickup_state, delivery_city, delivery_state, freight_description)')
+    .select(quoteSelect)
     .eq('company_id', companyId).order('created_at', { ascending: false })
   if (error) throw error
-  return (data ?? []) as QuoteRecord[]
+  return (data ?? []) as unknown as QuoteRecord[]
 }
 
 export async function createQuote(companyId: string, userId: string, values: {
@@ -76,10 +84,10 @@ export async function createQuote(companyId: string, userId: string, values: {
     expires_at: values.expiresAt ? `${values.expiresAt}T23:59:59` : null,
     notes: values.notes.trim() || null,
     created_by: userId,
-  }).select('*, load_requests(request_number, requester_company, requester_name, requester_email, pickup_city, pickup_state, delivery_city, delivery_state, freight_description)').single()
+  }).select(quoteSelect).single()
   if (error) throw error
   await requireClient().from('load_requests').update({ status: 'quoted' }).eq('id', values.loadRequestId)
-  return data as QuoteRecord
+  return data as unknown as QuoteRecord
 }
 
 export async function updateQuoteStatus(quoteId: string, status: QuoteRecord['status']) {
