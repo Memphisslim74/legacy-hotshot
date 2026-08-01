@@ -1,0 +1,58 @@
+.dispatch-table__clickable-row {
+  cursor: pointer;
+}
+
+.dispatch-table__clickable-row:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: -2px;
+}
+
+.capacity-day__loads {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.75rem;
+}
+
+.capacity-day__loads > button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.65rem 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.capacity-day__loads > button:hover,
+.capacity-day__loads > button:focus-visible {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.capacity-day__loads > button span {
+  display: grid;
+  min-width: 0;
+}
+
+.capacity-day__loads > button strong,
+.capacity-day__loads > button small,
+.capacity-day__loads > button em {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.capacity-day__loads > button small,
+.capacity-day__loads > button em {
+  font-size: 0.72rem;
+  opacity: 0.72;
+}
+
+.capacity-day__loads > button em {
+  font-style: normal;
+}

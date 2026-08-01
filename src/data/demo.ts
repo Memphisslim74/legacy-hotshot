@@ -14,7 +14,7 @@ export const attentionItems: AttentionItem[] = [
     title: 'Pickup window begins in 52 minutes',
     detail: 'LH-1028 · Titan Industrial · Fort Worth, TX',
     action: 'Open load',
-    href: '/loads',
+    href: '/loads/load-1028',
   },
   {
     id: 'attn-2',
@@ -82,9 +82,25 @@ export const activeLoads: ActiveLoad[] = [
 ]
 
 export const weeklySchedule = [
-  { day: 'Thu', date: '30', pickups: 2, deliveries: 1 },
-  { day: 'Fri', date: '31', pickups: 1, deliveries: 2 },
-  { day: 'Sat', date: '01', pickups: 0, deliveries: 1 },
-  { day: 'Sun', date: '02', pickups: 0, deliveries: 0 },
-  { day: 'Mon', date: '03', pickups: 2, deliveries: 1 },
+  {
+    day: 'Thu', date: '30', pickups: 2, deliveries: 1,
+    movements: [
+      { loadId: 'load-1028', loadNumber: 'LH-1028', type: 'Pickup', time: '8:00 PM', status: 'Booked' },
+    ],
+  },
+  {
+    day: 'Fri', date: '31', pickups: 1, deliveries: 2,
+    movements: [
+      { loadId: 'load-1027', loadNumber: 'LH-1027', type: 'Delivery', time: '9:30 AM', status: 'In Transit' },
+      { loadId: 'load-1026', loadNumber: 'LH-1026', type: 'Pickup', time: '3:00 PM', status: 'En Route' },
+    ],
+  },
+  {
+    day: 'Sat', date: '01', pickups: 0, deliveries: 1,
+    movements: [
+      { loadId: 'load-1026', loadNumber: 'LH-1026', type: 'Delivery', time: 'TBD', status: 'Scheduled' },
+    ],
+  },
+  { day: 'Sun', date: '02', pickups: 0, deliveries: 0, movements: [] },
+  { day: 'Mon', date: '03', pickups: 2, deliveries: 1, movements: [] },
 ]
